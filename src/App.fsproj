@@ -3,7 +3,10 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="App2.fs" />
+    <Compile Include="Utils.fs" />
+    <Compile Include="Plasma.fs" />
+    <Compile Include="MapEngine.fs" />
+    <Compile Include="TableCanvas.fs" />
     <Compile Include="App.fs" />
   </ItemGroup>
   <ItemGroup>

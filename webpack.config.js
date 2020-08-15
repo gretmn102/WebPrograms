@@ -5,7 +5,7 @@
 var path = require("path");
 
 module.exports = {
-    mode: "production",
+    mode: "development",
     entry: "./src/App.fsproj",
     output: {
         path: path.join(__dirname, "./public"),
