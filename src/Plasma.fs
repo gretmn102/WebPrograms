@@ -22,3 +22,10 @@ let repaint hueShift (plasma:float [] []) =
             hue
         )
     )
+let repaint' hueShift (plasma:float [] []) =
+    let w = plasma.[0].Length
+    for i = 0 to plasma.Length - 1 do
+        for j = 0 to w - 1 do
+            let e = plasma.[i].[j]
+            let hue = hueShift + e % 1.
+            plasma.[i].[j] <- hue

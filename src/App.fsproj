@@ -3,6 +3,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="FoxEscape.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="Plasma.fs" />
     <Compile Include="MapEngine.fs" />

@@ -7,7 +7,9 @@
   <link rel="shortcut icon" href="fable.ico" />
 </head>
 <body>
-    <canvas class="my-canvas" width="200" height="100" style="border:1px solid #000000;">Your browser does not support the HTML5 canvas tag.</canvas>
+    <img id="fox" src="https://cdn0.iconfinder.com/data/icons/kids-paint/512/fox-512.png" style="visibility: hidden; display: none;">
+    <img id="duck" src="https://cdn1.iconfinder.com/data/icons/birthday-18/52/59-512.png" style="visibility: hidden; display: none;">
+    <canvas class="my-canvas" width="800" height="650" style="border:1px solid #000000;">Your browser does not support the HTML5 canvas tag.</canvas>
     <p class="my-display" style="font-family: Consolas,monaco,monospace;"></p> 
     <table>
         <tr>
@@ -16,6 +18,12 @@
             <td><button class="button-regen">regen</button></td>
         </tr>
     </table>
+    <div class="fps-counter">0 FPS</div>
+    <div id="fpspicker">
+        <label for="fps">Maximum FPS:</label>
+        <input type="range" id="fps" min=1 max=60 step=1 value=60>
+        <span id="fpsvalue">60</span>
+    </div>
     <script src="bundle.js"></script>
 </body>
 </html>
