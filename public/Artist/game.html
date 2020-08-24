@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>txt2web</title></head><body>
+<div id="qsp">
+  <div class="qsp-col qsp-col1">
+    <div id="qsp-main" class="qsp-frame">&zwnj;</div>
+    <div id="qsp-acts" class="qsp-frame">&zwnj;</div>
+    <input id="qsp-input" class="qsp-frame">
+  </div>
+  <div class="qsp-col qsp-col2">
+    <div id="qsp-stat" class="qsp-frame">&zwnj;</div>
+    <div id="qsp-objs" class="qsp-frame">&zwnj;</div>
+  </div>
+  <div class="qsp-col qsp-col3">
+    <a id="qsp-btn-save"><img></a>
+    <a id="qsp-btn-open"><img></a>
+  </div>
+</div>
+
+<div id="qsp-dropdown">
+</div>
+
+<div id="qsp-image-container" class="center-on-screen">
+  <img id="qsp-image">
+</div>
+
+<style id="qsp-style">
+</style>
+<style>
+.qsp-frame {
+    border: 1px solid black;
+    overflow: auto;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+#qsp {
+    position: absolute;
+    display: flex;
+    flex-flow: row;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.qsp-col {
+    display: flex;
+    flex-flow: column;
+}
+
+.qsp-col1 {
+    flex: 7 7 70px;
+}
+
+.qsp-col2 {
+    flex: 3 3 30px;
+}
+
+.qsp-col3 {
+    flex: 0 0 40px;
+}
+
+#qsp-main {
+    flex: 6 6 60px;
+    background-repeat: no-repeat;
+    background-position: right top;
+    background-attachment: fixed;
+}
+
+#qsp-acts {
+    flex: 4 4 40px;
+}
+
+#qsp-input {
+}
+
+#qsp-stat {
+    flex: 5 5 50px;
+}
+
+#qsp-objs {
+    flex: 5 5 50px;
+}
+
+.qsp-act {
+    display: block;
+    padding: 2px;
+    font-size: large;
+}
+
+.qsp-act:hover {
+    outline: #9E9E9E outset 3px
+}
+
+/* Dropdown */
+
+#qsp-dropdown {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  overflow: auto;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  margin: auto;
+}
+
+#qsp-dropdown a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+#qsp-dropdown a:hover {
+    background-color: #ddd;
+}
+
+/* Buttons */
+
+.qsp-col3 a, .qsp-col3 img {
+    width: 50px;
+    height: 50px;
+}
+
+#qsp-btn-save img {
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAABmJLR0QA/wD/AP+gvaeTAAACSklEQVRoge3ZPWgUQRjG8V/iRRFU/GoEQdSohSgWWqQSooVgK9iJFiKCnYV2BkFQsBRBQQwWVsHKIoWxEOzEwmhhogbRMhhFicTvYm+JCUlmZzabRLN/OPaWeZ+ZeW7feXf2lpqampqamnRaImKP4hA2VjCP27hbpoNGwbib2IPreB+IPYY7M7SvxWYM4QNO4QqWyQxVRgdeYnnB+K5A+wUcbB7z+O14hxPx08toLRDTgfv4mjrIJFrwwMS0HsABXMTxlE6LpNYqfE7pPJIBdOKhLM1uxIiLrpG5YtC4GSLMVGGkLdD+GpfxAuvxaVL7oCzN+jCG7iKDVmHkKS5hSSBuJ3bg6hRt+Zrpa553z8bEuoQrUVXk1exwKLBI1ZpPBnAL+0KBqanVim1Ykaifji+yNfIrVphipB1n8BgjCfqZ2IrTuIZXMcIUIydxFj8TtEW4JysW52JEKWtkVHUm4EdzjChSrkgLlmJXghb6m8ep9MN4K25XjvTF3sCaElrT6McS+0w2Mirb+JWhrH4CC/0+UpjUK7Ia5/86f4IeHMHeEvPJ+4km1chHE43k9KROpCyLPrViym8/vjW/b5Jt3acjL7/RzEX5bRg3sjKg+2fK7/PmZ9aZzdTqxwYzp06IBZFaDeHUCbFgUquy1Anx35TfRWXkd+WzCBOcQxEjQ7JH0PmiHW9CQUWM9Mr+Y+osO6ME8nF7Q4FFn8T2y14VDMt2vsFfqCRbZBvTdbLXFI9CgphHyjbsVu4+EcMInuH7HI1XU1NTU7OI+QMFe2N82rtssgAAAABJRU5ErkJggg==');
+}
+
+#qsp-btn-open img {
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAABmJLR0QA/wD/AP+gvaeTAAACCklEQVRoge3Yz6sNYRzH8deVexNxSaEoroWFUuomOceSPVnIwsbSxs6Psrgphf9AsrZR7kJWsroUlrZKKZRSl4USGouZk9Npzp1n5pm5x4/nXdNzpvP9Pp/v95nv82OGRCKRSCQS/w8zuIn3yGpe37CEQ6sedQk38BA7G/jO4BQ+YEebQZUxVfH/OxzGVSxX2D4o2mO4jmt4jpNFe6d5mPFkRbvQ0H9h6OqUtR33/xXr0celGn4/sYjXoQ5dJ3ILB7AOW2r4bcIj7GsrkEFpXWyrwwbaf15nXWqv6SqK1abuHDmPjV0EMobhBWIZt8cZVu0j2ZDNHF7gblRozdiO49g1zqDOEzmKJ7gcGVQTzmLDSgZ1Eunh2dD9aewpsXtctH3cwzn5ALysoVWlXZvhleMV5ovfU8J363mciAliRLsRg0Q244vfT3A/zgT2cQHbImIY1S4ldPk9Ii+NH8V9H08DfbfiY6BtiHYpoYmMBr4bbwN9YzfVoEELnew9+blpwBv5u0oI9wPtQrUbkWFaXqOzsZ01IFg7pLQOyp/A58igmhCsHZJInYndNsHa/0wiVWTy9/a5NjprQGvag0Qmwd462iGltdQ8lihqlVVIIn/9/CAvrajDWgTRB8VhMt1/aSljVr4RToc6hJTWioe1jujJD4rfQx2qRvuTyX1JuTIh3UQikUgkEhPnF+1xZ9hHnLjAAAAAAElFTkSuQmCC');
+}
+
+.center-on-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.center-on-screen > * {
+    pointer-events: auto;
+}
+
+#qsp-image-container {
+    display: none;
+}
+
+/* misc */
+
+.disable a {
+  pointer-events: none;
+  cursor: default;
+}
+
+.qsp-objs li.qsp-obj-selected {
+    background-color: blue;
+}
+</style><script>var qsp_Globals = {  };
+var qsp_Objs = {  };
+var qsp_CurrentLocation = null;
+var qsp_StartedAt = Date.now();
+var qsp_TimerInterval = 500;
+var qsp_TimerObj = null;
+var qsp_LoadedGames = [];
+var qsp_Acts = {  };
+var qsp_StateStash = {  };
+var qsp_Playing = {  };
+var qsp_Locals = [];
+var qsp_MenuResume = null;
+var qsp_Games = [];
+var qsp_MainGame = null;
+var qsp_Locs = {  };
+window.onload = qsp_start;
+function qsp_start() {
+    qsp_api_initDom();
+    qsp_StartedAt = Date.now();
+    qsp_api_setTimer(qsp_TimerInterval);
+    qsp_api_runGame(Object.keys(qsp_Games)[0]);
+    __PS_MV_REG = [];
+    return;
+};
+function qsp_byId(qsp_id) {
+    return document.getElementById(qsp_id);
+};
+
+function qsp_api_makeActHtml(qsp_api_title, qsp_api_img) {
+    return '<a class=\'qsp-act\' href=\'' + ('javascript:' + ('qsp_api_callAct' + '(\"' + qsp_api_title + '\");')) + '\' onmouseover=\'' + ('qsp_api_selectAct' + '(\"' + qsp_api_title + '\");') + '\'>' + (qsp_api_img ? '<img src=\'' + qsp_api_img + '\'>' : '') + qsp_api_title + '</a>';
+};
+function qsp_api_makeMenuItemHtml(qsp_api_num, qsp_api_title, qsp_api_img, qsp_api_loc) {
+    return '<a href=\'' + ('javascript:' + ('qsp_api_finishMenu' + '(\"' + qsp_api_loc + '\");')) + '\'>' + (qsp_api_img ? '<img src=\'' + qsp_api_img + '\'>' : '') + qsp_api_title + '</a>';
+};
+function qsp_api_makeObj(qsp_api_title, qsp_api_img, qsp_api_selected) {
+    return '<li onclick=\'' + ('qsp_api_selectObj' + '(\"' + qsp_api_title + '\", \"' + qsp_api_img + '\");') + '\'>' + '<a class=\'qsp-obj' + (qsp_api_selected ? ' qsp-obj-selected' : '') + '\'>' + (qsp_api_img ? '<img src=\'' + qsp_api_img + '\'>' : '') + qsp_api_title + '</a>';
+};
+function qsp_api_makeMenuDelimiter() {
+    return '<hr>';
+};
+function qsp_api_copyObj(qsp_api_obj) {
+    return JSON.parse(JSON.stringify(qsp_api_obj));
+};
+function qsp_api_reportError(qsp_api_text) {
+    __PS_MV_REG = [];
+    return alert(qsp_api_text);
+};
+function qsp_api_startSleeping() {
+    __PS_MV_REG = [];
+    return qsp_byId('qsp').classList.add('disable');
+};
+function qsp_api_finishSleeping() {
+    __PS_MV_REG = [];
+    return qsp_byId('qsp').classList.remove('disable');
+};
+function sleep(qsp_api_msec) {
+    __PS_MV_REG = [];
+    return new Promise(function (qsp_api_resolve) {
+        qsp_api_startSleeping();
+        var qsp_api_resume = function () {
+            qsp_api_finishSleeping();
+            __PS_MV_REG = [];
+            return qsp_api_resolve();
+        };
+        __PS_MV_REG = [];
+        return setTimeout(qsp_api_resume, qsp_api_msec);
+    });
+};
+function qsp_api_initDom() {
+    var qsp_api_btn = qsp_byId('qsp-btn-save');
+    qsp_api_btn.onclick = qsp_api_savegame;
+    qsp_api_btn.href = '#';
+    var btn1 = qsp_byId('qsp-btn-open');
+    btn1.onclick = qsp_api_opengame;
+    btn1.href = '#';
+    qsp_byId('qsp-image-container').onclick = qsp_api_showImage;
+    qsp_api_getFrame('input').qsp_api_onkeyup = qsp_api_onInputKey;
+    __PS_MV_REG = [];
+    return window.onclick = function (qsp_api_event) {
+        window.qsp_api_mouse = [qsp_api_event.pageX, qsp_api_event.pageY];
+        __PS_MV_REG = [];
+        return qsp_api_finishMenu(null);
+    };
+};
+function qsp_api_callServLoc(qsp_api_varName) {
+    var qsp_api_args = Array.prototype.slice.call(arguments, 1);
+    var qsp_api_locName = qsp_api_getGlobal(qsp_api_varName, 0);
+    if (qsp_api_locName) {
+        var qsp_api_loc = qsp_Locs[qsp_api_locName];
+        __PS_MV_REG = [];
+        return qsp_api_loc ? qsp_api_callLoc(qsp_api_locName, qsp_api_args) : null;
+    };
+};
+function qsp_api_filenameGame(qsp_api_filename) {
+    var qsp_api_gameName = qsp_api_filename.match('(.*/)?([^.]+)(\\.[a-zA-Z]+)?')[2];
+    return qsp_Games[qsp_api_gameName];
+};
+function qsp_api_runGame(qsp_api_name) {
+    var qsp_api_game = qsp_api_filenameGame(qsp_api_name);
+    qsp_MainGame = qsp_api_name;
+    qsp_Locs = qsp_api_game;
+    __PS_MV_REG = [];
+    return qsp_api_game[Object.keys(qsp_api_game)[0]]([]);
+};
+function qsp_api_newline(qsp_api_key) {
+    __PS_MV_REG = [];
+    return qsp_api_appendId(qsp_api_keyToId(qsp_api_key), '<br>', true);
+};
+function qsp_api_clearId(qsp_api_id) {
+    __PS_MV_REG = [];
+    return qsp_byId(qsp_api_id).innerHTML = '';
+};
+function qsp_api_escapeHtml(qsp_api_text) {
+    return qsp_api_text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+};
+function qsp_api_prepareContents(qsp_api_s, qsp_api_forceHtml) {
+    qsp_api_s = qsp_api_s.toString();
+    __PS_MV_REG = [];
+    return qsp_api_forceHtml || qsp_api_getGlobal('USEHTML', 0) ? qsp_api_s : qsp_api_escapeHtml(qsp_api_s);
+};
+function qsp_api_getId(qsp_api_id, qsp_api_forceHtml) {
+    __PS_MV_REG = [];
+    return qsp_byId(qsp_api_id).innerHTML;
+};
+function qsp_api_setId(qsp_api_id, qsp_api_contents, qsp_api_forceHtml) {
+    __PS_MV_REG = [];
+    return qsp_byId(qsp_api_id).innerHTML = qsp_api_prepareContents(qsp_api_contents, qsp_api_forceHtml);
+};
+function qsp_api_appendId(qsp_api_id, qsp_api_contents, qsp_api_forceHtml) {
+    __PS_MV_REG = [];
+    return qsp_api_contents ? (qsp_byId(qsp_api_id).innerHTML += qsp_api_prepareContents(qsp_api_contents, qsp_api_forceHtml)) : null;
+};
+function qsp_api_onInputKey(qsp_api_ev) {
+    if (13 === qsp_api_ev.qsp_api_keyCode) {
+        qsp_api_ev.qsp_api_preventDefault();
+        __PS_MV_REG = [];
+        return qsp_api_callServLoc('$USERCOM');
+    };
+};
+function qsp_api_initArgs(qsp_api_args) {
+    for (var qsp_api_i = 0; qsp_api_i < qsp_api_args.length; qsp_api_i += 1) {
+        var qsp_api_arg = qsp_api_args[qsp_api_i];
+        if (typeof qsp_api_arg === 'number') {
+            qsp_api_setVar(qsp_api_args, qsp_api_i, 'num', qsp_api_arg);
+        } else {
+            qsp_api_setVar(qsp_api_args, qsp_api_i, 'str', qsp_api_arg);
+        };
+    };
+};
+function qsp_api_getResult() {
+    __PS_MV_REG = [];
+    return qsp_api_getGlobal('$RESULT', 0) || qsp_api_getGlobal('RESULT', 0);
+};
+function qsp_api_callLoc(qsp_api_name, qsp_api_args) {
+    qsp_api_name = qsp_api_name.toUpperCase();
+    qsp_api_pushLocalFrame();
+    try {
+        qsp_api_initArgs(qsp_api_args);
+        qsp_Locs[qsp_api_name]();
+        qsp_api_getResult();
+    } finally {
+        qsp_api_popLocalFrame();
+    };
+};
+function qsp_api_callAct(qsp_api_title) {
+    qsp_api_pushLocalFrame();
+    try {
+        qsp_Acts[qsp_api_title]['act']();
+    } finally {
+        qsp_api_popLocalFrame();
+    };
+};
+function qsp_api_keyToId(qsp_api_key) {
+    switch (qsp_api_key) {
+    case 'all':
+        return 'qsp';
+    case 'main':
+        return 'qsp-main';
+    case 'stat':
+        return 'qsp-stat';
+    case 'objs':
+        return 'qsp-objs';
+    case 'acts':
+        return 'qsp-acts';
+    case 'input':
+        return 'qsp-input';
+    case 'image':
+        return 'qsp-image';
+    case 'dropdown':
+        return 'qsp-dropdown';
+    default:
+        __PS_MV_REG = [];
+        return qsp_api_reportError('Internal error!');
+    };
+};
+function qsp_api_getFrame(qsp_api_key) {
+    __PS_MV_REG = [];
+    return qsp_byId(qsp_api_keyToId(qsp_api_key));
+};
+function qsp_api_addText(qsp_api_key, qsp_api_text) {
+    __PS_MV_REG = [];
+    return qsp_api_appendId(qsp_api_keyToId(qsp_api_key), qsp_api_text);
+};
+function qsp_api_getText(qsp_api_key) {
+    __PS_MV_REG = [];
+    return qsp_api_getId(qsp_api_keyToId(qsp_api_key));
+};
+function qsp_api_clearText(qsp_api_key) {
+    __PS_MV_REG = [];
+    return qsp_api_clearId(qsp_api_keyToId(qsp_api_key));
+};
+function qsp_api_enableFrame(qsp_api_key, qsp_api_enable) {
+    var qsp_api_obj = qsp_api_getFrame(qsp_api_key);
+    qsp_api_obj.style.display = qsp_api_enable ? 'block' : 'none';
+};
+function qsp_api_addAct(qsp_api_title, qsp_api_img, qsp_api_act) {
+    qsp_Acts[qsp_api_title] = { 'title' : qsp_api_title,
+                             'img' : qsp_api_img,
+                             'act' : qsp_api_act,
+                             'selected' : null
+                           };
+    __PS_MV_REG = [];
+    return qsp_api_updateActs();
+};
+function qsp_api_delAct(qsp_api_title) {
+    delete qsp_Acts[qsp_api_title];
+    __PS_MV_REG = [];
+    return qsp_api_updateActs();
+};
+function qsp_api_clearAct() {
+    qsp_Acts = {  };
+    __PS_MV_REG = [];
+    return qsp_api_updateActs();
+};
+function qsp_api_updateActs() {
+    qsp_api_clearId('qsp-acts');
+    var elt = qsp_byId('qsp-acts');
+    for (var qsp_api_title in qsp_Acts) {
+        var qsp_api_obj = qsp_Acts[qsp_api_title];
+        elt.innerHTML += qsp_api_makeActHtml(qsp_api_title, qsp_api_obj['img']);
+    };
+};
+function qsp_api_selectAct(qsp_api_title) {
+    for (var qsp_api_k in qsp_Acts) {
+        var qsp_api_v = qsp_Acts[qsp_api_k];
+        qsp_api_v['selected'] = null;
+    };
+    qsp_Acts[qsp_api_title]['selected'] = true;
+    __PS_MV_REG = [];
+    return qsp_api_callServLoc('$ONACTSEL');
+};
+function qsp_api_qspfor(qsp_api_name, qsp_api_index, qsp_api_from, qsp_api_to, step, body) {
+    for (var qsp_api_i = qsp_api_from; qsp_api_i <= qsp_api_to; qsp_api_i += step) {
+        qsp_api_setVar(qsp_api_name, qsp_api_index, 'num', qsp_api_i);
+        if (!await (body())) {
+            __PS_MV_REG = [];
+            return;
+        };
+    };
+};
+function qsp_api_newVar(qsp_api_slot) {
+    var qsp_api_indexes = Array.prototype.slice.call(arguments, 1);
+    var qsp_api_v = [];
+    for (var qsp_api_index = null, _js_idx2 = 0; _js_idx2 < qsp_api_indexes.length; _js_idx2 += 1) {
+        qsp_api_index = qsp_api_indexes[_js_idx2];
+        qsp_api_v[qsp_api_index] = '$' === qsp_api_slot[0] ? '' : 0;
+    };
+    qsp_api_v['indexes'] = {  };
+    __PS_MV_REG = [];
+    return qsp_api_v;
+};
+function qsp_api_setStrElement(qsp_api_slot, qsp_api_index, qsp_api_value) {
+    if (qsp_api_slot['indexes'].hasOwnProperty(qsp_api_index)) {
+        qsp_api_slot[null][qsp_api_slot['indexes'][qsp_api_index]] = qsp_api_value;
+    } else {
+        qsp_api_slot.push(qsp_api_value);
+        qsp_api_slot[qsp_api_index] = qsp_api_slot.length;
+    };
+};
+function qsp_api_setAnyElement(qsp_api_slot, qsp_api_index, qsp_api_value) {
+    if (qsp_api_index == null) {
+        qsp_api_slot.push(qsp_api_value);
+    } else if (typeof qsp_api_index === 'number') {
+        qsp_api_slot[qsp_api_index] = qsp_api_value;
+    } else if (typeof qsp_api_index === 'string') {
+        qsp_api_setStrElement(qsp_api_slot, qsp_api_index, qsp_api_value);
+    } else {
+        qsp_api_reportError('INTERNAL ERROR');
+    };
+};
+function qsp_api_setServVar(qsp_api_name, qsp_api_index, qsp_api_value) {
+    var qsp_api_slot = qsp_Globals[qsp_api_name];
+    qsp_api_setAnyElement(qsp_api_slot, qsp_api_index, qsp_api_value);
+    qsp_api_servVars[qsp_api_name]['body'](qsp_api_value, qsp_api_index);
+};
+function qsp_api_getElement(qsp_api_slot, qsp_api_index) {
+    return typeof qsp_api_index === 'number' ? qsp_api_slot[qsp_api_index] : qsp_api_slot[qsp_api_slot['indexes'][qsp_api_index]];
+};
+function qsp_api_getGlobal(qsp_api_name, qsp_api_index) {
+    return qsp_Globals[qsp_api_name][qsp_api_index];
+};
+function qsp_api_killVar(qsp_api_store, qsp_api_name, qsp_api_index) {
+    qsp_api_name = qsp_api_name.toUpperCase();
+    if (qsp_api_index && 0 !== qsp_api_index) {
+        qsp_Globals[qsp_api_name].qsp_api_kill(qsp_api_index);
+    } else {
+        delete qsp_Globals[qsp_api_name];
+    };
+};
+function qsp_api_arraySize(qsp_api_name) {
+    __PS_MV_REG = [];
+    return qsp_api_varRef(qsp_api_name)['values'].length;
+};
+function qsp_api_pushLocalFrame() {
+    qsp_Locals.push({  });
+};
+function qsp_api_popLocalFrame() {
+    qsp_Locals.pop();
+};
+function qsp_api_currentLocalFrame() {
+    return qsp_Locals[qsp_Locals.length - 1];
+};
+function qsp_api_selectObj(qsp_api_title, qsp_api_img) {
+    for (var qsp_api_k in qsp_Objs) {
+        var qsp_api_v = qsp_Objs[qsp_api_k];
+        qsp_api_v['selected'] = null;
+    };
+    qsp_Objs[qsp_api_title]['selected'] = true;
+    __PS_MV_REG = [];
+    return qsp_api_callServLoc('$ONOBJSEL', qsp_api_title, qsp_api_img);
+};
+function qsp_api_updateObjs() {
+    var elt = qsp_byId('qsp-objs');
+    elt.innerHTML = '<ul>';
+    for (var qsp_api_name in qsp_Objs) {
+        var qsp_api_obj = qsp_Objs[qsp_api_name];
+        elt.innerHTML += qsp_api_makeObj(qsp_api_name, qsp_api_obj['img'], qsp_api_obj['selected']);
+    };
+    __PS_MV_REG = [];
+    return elt.innerHTML += '</ul>';
+};
+function qsp_api_openMenu(qsp_api_menuData) {
+    var elt = qsp_api_getFrame('dropdown');
+    var qsp_api_i = 0;
+    var _js4 = qsp_api_menuData.length;
+    for (var _js3 = 0; _js3 < _js4; _js3 += 1) {
+        var qsp_api_item = qsp_api_menuData[_js3];
+        ++qsp_api_i;
+        elt.innerHTML += qsp_api_item === 'delimiter' ? qsp_api_makeMenuDelimiter(qsp_api_i) : qsp_api_makeMenuItemHtml(qsp_api_i, qsp_api_item['text'], qsp_api_item['icon'], qsp_api_item['loc']);
+    };
+    var mouse5 = window.qsp_api_mouse;
+    elt.style.left = mouse5[0] + 'px';
+    elt.style.top = mouse5[1] + 'px';
+    if (document.body.qsp_api_innerWidth > mouse5[0] + elt.qsp_api_innerWidth) {
+        elt.style.left += elt.qsp_api_innerWidth;
+    };
+    if (document.body.qsp_api_innerHeight > mouse5[0] + elt.qsp_api_innerHeight) {
+        elt.style.top += elt.qsp_api_innerHeight;
+    };
+    __PS_MV_REG = [];
+    return elt.style.display = 'block';
+};
+function qsp_api_finishMenu(qsp_api_loc) {
+    if (qsp_MenuResume) {
+        var elt = qsp_api_getFrame('dropdown');
+        elt.innerHTML = '';
+        elt.style.display = 'none';
+        qsp_MenuResume();
+        qsp_MenuResume = null;
+        if (qsp_api_loc) {
+            qsp_api_callLoc(qsp_api_loc);
+        };
+    };
+};
+function qsp_api_menu(qsp_api_menuData) {
+    new Promise(function (qsp_api_resolve) {
+        qsp_api_startSleeping();
+        var qsp_api_resume = function () {
+            qsp_api_finishSleeping();
+            __PS_MV_REG = [];
+            return qsp_api_resolve();
+        };
+        qsp_api_openMenu(qsp_api_menuData);
+        __PS_MV_REG = [];
+        return qsp_MenuResume = qsp_api_resume;
+    });
+};
+function qsp_api_cleanAudio() {
+    var _js6 = Object.keys(qsp_Playing);
+    var _js8 = _js6.length;
+    for (var _js7 = 0; _js7 < _js8; _js7 += 1) {
+        var qsp_api_k = _js6[_js7];
+        var qsp_api_v = qsp_Playing[qsp_api_k];
+        if (qsp_api_v.qsp_api_ended) {
+            delete qsp_Playing.qsp_api_k;
+        };
+    };
+};
+function qsp_api_showImage(qsp_api_path) {
+    var qsp_api_img = qsp_api_getFrame('image');
+    if (qsp_api_path) {
+        qsp_api_img.src = qsp_api_path;
+        __PS_MV_REG = [];
+        return qsp_api_img.style.display = 'flex';
+    } else {
+        qsp_api_img.src = '';
+        __PS_MV_REG = [];
+        return qsp_api_img.style.display = 'hidden';
+    };
+};
+function qsp_api_showInlineImages(qsp_api_frameName, qsp_api_images) {
+    var qsp_api_frame = qsp_api_getFrame(qsp_api_frameName);
+    var qsp_api_text = '';
+    qsp_api_text += '<div style=\'position:relative; display: inline-block\'>';
+    qsp_api_text += '<img src=\'' + qsp_api_images[0] + '\'>';
+    var _js9 = qsp_api_images.slice(1);
+    var _js11 = _js9.length;
+    for (var _js10 = 0; _js10 < _js11; _js10 += 1) {
+        var qsp_api_image = _js9[_js10];
+        qsp_api_text += '<img style=\'position:absolute\' src=\'' + qsp_api_image + '\'>';
+    };
+    qsp_api_text += '</div>';
+    __PS_MV_REG = [];
+    return qsp_api_frame.innerHTML += qsp_api_text;
+};
+function qsp_api_rgbString(qsp_api_rgb) {
+    var qsp_api_red = qsp_api_rgb >> 16;
+    var qsp_api_green = qsp_api_rgb >> 8 & 255;
+    var qsp_api_blue = qsp_api_rgb & 255;
+    var qsp_api_rgbToHex = function (qsp_api_comp) {
+        var qsp_api_hex = Number(qsp_api_comp).toString(16);
+        __PS_MV_REG = [];
+        return qsp_api_hex.length < 2 ? '0' + qsp_api_hex : qsp_api_hex;
+    };
+    __PS_MV_REG = [];
+    return '#' + qsp_api_rgbToHex(qsp_api_red) + qsp_api_rgbToHex(qsp_api_green) + qsp_api_rgbToHex(qsp_api_blue);
+};
+function qsp_api_storeObj(qsp_api_key, qsp_api_obj) {
+    qsp_api_storeStr(qsp_api_key, btoa(encodeURIComponent(JSON.stringify(qsp_api_obj))));
+};
+function qsp_api_storeStr(qsp_api_key, qsp_api_str) {
+    localStorage.setItem('qsp_' + qsp_api_key, qsp_api_str);
+};
+function qsp_api_loadObj(qsp_api_key) {
+    __PS_MV_REG = [];
+    return JSON.parse(encodeURIComponent(atob(qsp_api_loadStr(qsp_api_key))));
+};
+function qsp_api_loadStr(qsp_api_key) {
+    return localStorage.getItem('qsp_' + qsp_api_key);
+};
+function qsp_api_slotSavegame(qsp_api_slot, qsp_api_comment) {
+    var qsp_api_saves = qsp_api_loadObj('saves');
+    qsp_api_saves.qsp_api_slot = qsp_api_comment;
+    qsp_api_storeObj(qsp_api_saves);
+    qsp_api_storeStr(qsp_api_slot, qsp_api_stateToBase64());
+};
+function qsp_api_slotLoadgame(qsp_api_slot) {
+    qsp_api_base64ToState(qsp_api_loadStr(qsp_api_slot));
+};
+function qsp_api_slotDeletegame(qsp_api_slot) {
+    var qsp_api_saves = qsp_api_loadObj('saves');
+    qsp_api_saves.qsp_api_slot = undefined;
+    qsp_api_storeObj(qsp_api_saves);
+    qsp_api_storeStr(qsp_api_slot, undefined);
+};
+function qsp_api_slotListgames() {
+    __PS_MV_REG = [];
+    return qsp_api_loadObj('saves');
+};
+function qsp_api_opengame() {
+    var qsp_api_element = document.createElement('input');
+    qsp_api_element.setAttribute('type', 'file');
+    qsp_api_element.setAttribute('id', 'qsp-opengame');
+    qsp_api_element.setAttribute('tabindex', -1);
+    qsp_api_element.setAttribute('aria-hidden', true);
+    qsp_api_element.style.display = 'block';
+    qsp_api_element.style.qsp_api_visibility = 'hidden';
+    qsp_api_element.style.position = 'fixed';
+    qsp_api_element.onchange = function (qsp_api_event) {
+        var qsp_api_file = qsp_api_event.target.files[0];
+        var qsp_api_reader = new FileReader();
+        qsp_api_reader.onload = function (qsp_api_ev) {
+            var target = qsp_api_ev.currentTarget;
+            if (!target.result) {
+                return null;
+            };
+            qsp_api_base64ToState(target.result);
+            __PS_MV_REG = [];
+            return qsp_api_unstashState();
+        };
+        __PS_MV_REG = [];
+        return qsp_api_reader.readAsText(qsp_api_file);
+    };
+    document.body.appendChild(qsp_api_element);
+    qsp_api_element.click();
+    return document.body.removeChild(qsp_api_element);
+};
+function qsp_api_savegame() {
+    var qsp_api_element = document.createElement('a');
+    qsp_api_element.setAttribute('href', 'data:text/plain;charset=utf-8,' + qsp_api_stateToBase64());
+    qsp_api_element.setAttribute('download', 'savegame.sav');
+    qsp_api_element.style.display = 'none';
+    document.body.appendChild(qsp_api_element);
+    qsp_api_element.click();
+    __PS_MV_REG = [];
+    return document.body.removeChild(qsp_api_element);
+};
+function qsp_api_stashState(qsp_api_args) {
+    qsp_api_callServLoc('$ONGSAVE');
+    qsp_StateStash = JSON.stringify({ 'vars' : qsp_Globals,
+                                   'objs' : qsp_Objs,
+                                   'loc-args' : qsp_api_args,
+                                   'msecs' : Date.now() - qsp_StartedAt,
+                                   'timer-interval' : qsp_TimerInterval,
+                                   'main-html' : qsp_api_getFrame('main').innerHTML,
+                                   'stat-html' : qsp_api_getFrame('stat').innerHTML,
+                                   'next-location' : qsp_CurrentLocation
+                                 });
+};
+function qsp_api_unstashState() {
+    var qsp_api_data = JSON.parse(qsp_StateStash);
+    qsp_api_clearAct();
+    qsp_Globals = qsp_api_data['vars'];
+    var _js12 = Object.keys(qsp_Globals);
+    var _js14 = _js12.length;
+    for (var _js13 = 0; _js13 < _js14; _js13 += 1) {
+        var qsp_api_k = _js12[_js13];
+        Object.setPrototypeOf(qsp_Globals[qsp_api_k], qsp_api_Var.prototype);
+    };
+    qsp_StartedAt = Date.now() - qsp_api_data['msecs'];
+    qsp_Objs = qsp_api_data['objs'];
+    qsp_CurrentLocation = qsp_api_data['next-location'];
+    qsp_api_getFrame('main').innerHTML = qsp_api_data['main-html'];
+    qsp_api_getFrame('stat').innerHTML = qsp_api_data['stat-html'];
+    qsp_api_updateObjs();
+    qsp_api_setTimer(qsp_api_data['timer-interval']);
+    qsp_api_callServLoc('$ONGLOAD');
+    qsp_api_callLoc(qsp_CurrentLocation, qsp_api_data['loc-args']);
+};
+function qsp_api_stateToBase64() {
+    __PS_MV_REG = [];
+    return btoa(encodeURIComponent(qsp_StateStash));
+};
+function qsp_api_base64ToState(qsp_api_data) {
+    __PS_MV_REG = [];
+    return qsp_StateStash = decodeURIComponent(atob(qsp_api_data));
+};
+function qsp_api_setTimer(qsp_api_interval) {
+    qsp_TimerInterval = qsp_api_interval;
+    clearInterval(qsp_TimerObj);
+    __PS_MV_REG = [];
+    return qsp_TimerObj = setInterval(function () {
+        __PS_MV_REG = [];
+        return qsp_api_callServLoc('$COUNTER');
+    }, qsp_api_interval);
+};
+if ('undefined' === typeof qsp_api_servVars) {
+    var qsp_api_servVars = {  };
+};
+qsp_api_servVars['$BACKIMAGE'] = { 'name' : '$BACKIMAGE', 'body' : function (qsp_api_path) {
+    __PS_MV_REG = [];
+    return qsp_api_getFrame('main').style.backgroundImage = qsp_api_path;
+} };
+qsp_api_servVars['BCOLOR'] = { 'name' : 'BCOLOR', 'body' : function (color) {
+    __PS_MV_REG = [];
+    return qsp_api_getFrame('all').style.backgroundColor = qsp_api_rgbString(color);
+} };
+qsp_api_servVars['FCOLOR'] = { 'name' : 'FCOLOR', 'body' : function (color) {
+    __PS_MV_REG = [];
+    return qsp_api_getFrame('all').style.color = qsp_api_rgbString(color);
+} };
+qsp_api_servVars['LCOLOR'] = { 'name' : 'LCOLOR', 'body' : function (color) {
+    __PS_MV_REG = [];
+    return qsp_api_getFrame('style').innerText = 'a { color: ' + qsp_api_rgbString(color) + ';}';
+} };
+qsp_api_servVars['FSIZE'] = { 'name' : 'FSIZE', 'body' : function (size) {
+    __PS_MV_REG = [];
+    return qsp_api_getFrame('all').style.fontSize = size;
+} };
+qsp_api_servVars['$FNAME'] = { 'name' : '$FNAME', 'body' : function (fontName) {
+    __PS_MV_REG = [];
+    return qsp_api_getFrame('all').style.fontFamily = fontName + ',serif';
+} };
+
+function qsp_lib_goto(target, qsp_lib_args) {
+    qsp_api_clearText('main');
+    qsp_lib_xgoto(target, qsp_lib_args);
+};
+function qsp_lib_xgoto(target, qsp_lib_args) {
+    qsp_lib_args = qsp_lib_args || [];
+    qsp_api_clearAct();
+    qsp_CurrentLocation = target.toUpperCase();
+    qsp_api_stashState(qsp_lib_args);
+    qsp_api_callLoc(qsp_CurrentLocation, qsp_lib_args);
+    qsp_api_callServLoc('$ONNEWLOC');
+};
+function qsp_lib_obj(qsp_lib_name) {
+    return qsp_Objs.hasOwnProperty(qsp_lib_name);
+};
+function qsp_lib_loc(qsp_lib_name) {
+    return qsp_Locs.hasOwnProperty(qsp_lib_name);
+};
+function qsp_lib_rand(qsp_lib_a, qsp_lib_b) {
+    if (qsp_lib_b === undefined) {
+        qsp_lib_b = 1;
+    };
+    var min15 = Math.min(qsp_lib_a, qsp_lib_b);
+    var max16 = Math.max(qsp_lib_a, qsp_lib_b);
+    __PS_MV_REG = [];
+    return min15 + qsp_lib_Math.random(max16 - min15);
+};
+function qsp_lib_copyarr(qsp_lib_to, qsp_lib_from, qsp_lib_start, count) {
+    __PS_MV_REG = [];
+    var qsp_lib_toName = qsp_api_varRealName(qsp_lib_to);
+    var qsp_lib_toSlot = __PS_MV_REG[0];
+    __PS_MV_REG = [];
+    var qsp_lib_fromName = qsp_api_varRealName(qsp_lib_from);
+    var qsp_lib_fromSlot = __PS_MV_REG[0];
+    var _js17 = Math.min(qsp_api_arraySize(qsp_lib_fromName), qsp_lib_start + count);
+    for (var qsp_lib_i = qsp_lib_start; qsp_lib_i <= _js17; qsp_lib_i += 1) {
+        qsp_api_setVar(qsp_lib_toName, qsp_lib_start + qsp_lib_i, qsp_lib_toSlot, qsp_api_getVar(qsp_lib_fromName, qsp_lib_start + qsp_lib_i, qsp_lib_fromSlot));
+    };
+};
+function qsp_lib_arrpos(qsp_lib_name, qsp_lib_value, qsp_lib_start) {
+    if (qsp_lib_start === undefined) {
+        qsp_lib_start = 0;
+    };
+    __PS_MV_REG = [];
+    var qsp_lib_realName = qsp_api_varRealName(qsp_lib_name);
+    var qsp_lib_slot = __PS_MV_REG[0];
+    var _js18 = qsp_api_arraySize(qsp_lib_name);
+    for (var qsp_lib_i = qsp_lib_start; qsp_lib_i <= _js18; qsp_lib_i += 1) {
+        if (qsp_api_getVar(qsp_lib_realName, qsp_lib_i, qsp_lib_slot) === qsp_lib_value) {
+            __PS_MV_REG = [];
+            return qsp_lib_i;
+        };
+    };
+    __PS_MV_REG = [];
+    return -1;
+};
+function qsp_lib_arrcomp(qsp_lib_name, qsp_lib_pattern, qsp_lib_start) {
+    if (qsp_lib_start === undefined) {
+        qsp_lib_start = 0;
+    };
+    __PS_MV_REG = [];
+    var qsp_lib_realName = qsp_api_varRealName(qsp_lib_name);
+    var qsp_lib_slot = __PS_MV_REG[0];
+    var _js19 = qsp_api_arraySize(qsp_lib_name);
+    for (var qsp_lib_i = qsp_lib_start; qsp_lib_i <= _js19; qsp_lib_i += 1) {
+        if (qsp_api_getVar(qsp_lib_realName, qsp_lib_i, qsp_lib_slot).match(qsp_lib_pattern)) {
+            __PS_MV_REG = [];
+            return qsp_lib_i;
+        };
+    };
+    __PS_MV_REG = [];
+    return -1;
+};
+function qsp_lib_instr(qsp_lib_s, qsp_lib_subs, qsp_lib_start) {
+    if (qsp_lib_start === undefined) {
+        qsp_lib_start = 1;
+    };
+    return qsp_lib_start + qsp_lib_s.qsp_lib_substring(qsp_lib_start - 1).search(qsp_lib_subs);
+};
+function qsp_lib_isnum(qsp_lib_s) {
+    __PS_MV_REG = [];
+    return qsp_lib_isNaN(qsp_lib_s) ? 0 : -1;
+};
+function qsp_lib_strcomp(qsp_lib_s, qsp_lib_pattern) {
+    return qsp_lib_s.match(qsp_lib_pattern) ? -1 : 0;
+};
+function qsp_lib_strfind(qsp_lib_s, qsp_lib_pattern, qsp_lib_group) {
+    var qsp_lib_re = new qsp_lib_RegExp(qsp_lib_pattern);
+    var match = qsp_lib_re.qsp_lib_exec(qsp_lib_s);
+    __PS_MV_REG = [];
+    return match.qsp_lib_group(qsp_lib_group);
+};
+function qsp_lib_strpos(qsp_lib_s, qsp_lib_pattern, qsp_lib_group) {
+    if (qsp_lib_group === undefined) {
+        qsp_lib_group = 0;
+    };
+    var qsp_lib_re = new qsp_lib_RegExp(qsp_lib_pattern);
+    var match = qsp_lib_re.qsp_lib_exec(qsp_lib_s);
+    var qsp_lib_found = match.qsp_lib_group(qsp_lib_group);
+    __PS_MV_REG = [];
+    return qsp_lib_found ? qsp_lib_s.search(qsp_lib_found) : 0;
+};
+function qsp_lib_iif(qsp_lib_condExpr, qsp_lib_thenExpr, qsp_lib_elseExpr) {
+    return qsp_lib_condExpr ? qsp_lib_thenExpr : qsp_lib_elseExpr;
+};
+function qsp_lib_gosub(target) {
+    var qsp_lib_args = Array.prototype.slice.call(arguments, 1);
+    qsp_api_callLoc(target, qsp_lib_args);
+};
+function qsp_lib_func(target) {
+    var qsp_lib_args = Array.prototype.slice.call(arguments, 1);
+    __PS_MV_REG = [];
+    return qsp_api_callLoc(target, qsp_lib_args);
+};
+function qsp_lib_dynamic(block) {
+    var qsp_lib_args = Array.prototype.slice.call(arguments, 1);
+    if (typeof block === 'string') {
+        qsp_api_reportError('DYNAMIC can\'t evaluate arbitrary strings.\\nUse {braces} to create blocks for DYNAMIC.');
+    };
+    qsp_api_initArgs(qsp_lib_args);
+    block(qsp_lib_args);
+    qsp_api_getResult();
+};
+function qsp_lib_dyneval(block) {
+    var qsp_lib_args = Array.prototype.slice.call(arguments, 1);
+    if (typeof block === 'string') {
+        qsp_api_reportError('DYNEVAL can\'t evaluate arbitrary strings.\\nUse {braces} to create blocks for DYNEVAL.');
+    };
+    qsp_api_initArgs(qsp_lib_args);
+    block(qsp_lib_args);
+    __PS_MV_REG = [];
+    return qsp_api_getResult();
+};
+function qsp_lib_mainP(qsp_lib_s) {
+    qsp_api_addText('main', qsp_lib_s);
+};
+function qsp_lib_mainPl(qsp_lib_s) {
+    qsp_api_addText('main', qsp_lib_s);
+    qsp_api_newline('main');
+};
+function qsp_lib_mainNl(qsp_lib_s) {
+    qsp_api_newline('main');
+    qsp_api_addText('main', qsp_lib_s);
+};
+function qsp_lib_maintxt(qsp_lib_s) {
+    qsp_api_getText('main');
+};
+function qsp_lib_desc(qsp_lib_s) {
+    return '';
+};
+function qsp_lib_mainClear() {
+    qsp_api_clearText('main');
+};
+function qsp_lib_statP(qsp_lib_s) {
+    qsp_api_addText('stat', qsp_lib_s);
+};
+function qsp_lib_statPl(qsp_lib_s) {
+    qsp_api_addText('stat', qsp_lib_s);
+    qsp_api_newline('stat');
+};
+function qsp_lib_statNl(qsp_lib_s) {
+    qsp_api_newline('stat');
+    qsp_api_addText('stat', qsp_lib_s);
+};
+function qsp_lib_stattxt(qsp_lib_s) {
+    qsp_api_getText('stat');
+};
+function qsp_lib_statClear() {
+    qsp_api_clearText('stat');
+};
+function qsp_lib_cls() {
+    qsp_lib_statClear();
+    qsp_lib_mainClear();
+    qsp_api_clearAct();
+    qsp_lib_cmdclear();
+};
+function qsp_lib_selact() {
+    for (var qsp_lib_k in qsp_Acts) {
+        var qsp_lib_v = qsp_Acts[qsp_lib_k];
+        if (qsp_lib_v['selected']) {
+            return qsp_lib_v['name'];
+        };
+    };
+};
+function qsp_lib_curacts() {
+    var qsp_lib_acts = qsp_api_copyObj(qsp_Acts);
+    __PS_MV_REG = [];
+    return function () {
+        qsp_Acts = qsp_lib_acts;
+    };
+};
+function qsp_lib_addobj(qsp_lib_name, qsp_lib_img) {
+    qsp_lib_img = qsp_lib_img || '';
+    qsp_Objs[qsp_lib_name] = { 'name' : qsp_lib_name,
+                            'img' : qsp_lib_img,
+                            'selected' : null
+                          };
+    qsp_api_updateObjs();
+    qsp_api_callServLoc('$ONOBJADD', qsp_lib_name, qsp_lib_img);
+};
+function qsp_lib_delobj(qsp_lib_name) {
+    delete qsp_Objs[qsp_lib_name];
+    qsp_api_updateObjs();
+    qsp_api_callServLoc('$ONOBJDEL', qsp_lib_name);
+};
+function qsp_lib_killobj(qsp_lib_num) {
+    if (null === qsp_lib_num) {
+        qsp_Objs = {  };
+    } else {
+        qsp_lib_delobj(Object.keys(qsp_Objs)[qsp_lib_num]);
+    };
+    qsp_api_updateObjs();
+};
+function qsp_lib_selobj() {
+    for (var qsp_lib_k in qsp_Objs) {
+        var qsp_lib_v = qsp_Objs[qsp_lib_k];
+        if (qsp_lib_v['selected']) {
+            return qsp_lib_v['name'];
+        };
+    };
+};
+function qsp_lib_unsel() {
+    for (var qsp_lib_k in qsp_Objs) {
+        var qsp_lib_v = qsp_Objs[qsp_lib_k];
+        qsp_lib_v['selected'] = null;
+    };
+};
+function qsp_lib_menu(qsp_lib_menuName) {
+    var qsp_lib_menuData = [];
+    var _js20 = qsp_api_getArray(qsp_api_varRealName(qsp_lib_menuName)).values;
+    var _js22 = _js20.length;
+    for (var _js21 = 0; _js21 < _js22; _js21 += 1) {
+        var qsp_lib_itemObj = _js20[_js21];
+        var qsp_lib_item = qsp_lib_itemObj['str'];
+        if (qsp_lib_item === '') {
+            break;
+        } else if (qsp_lib_item === '-:-') {
+            qsp_lib_menuData.push('delimiter');
+        } else {
+            var qsp_lib_tokens = qsp_lib_item.split(':');
+            if (qsp_lib_tokens.length === 2) {
+                qsp_lib_tokens.push('');
+            };
+            var qsp_lib_text = qsp_lib_tokens.splice(0, qsp_lib_tokens.length - 2).join(':');
+            var qsp_lib_loc = qsp_lib_tokens[qsp_lib_tokens.length - 2];
+            var qsp_lib_icon = qsp_lib_tokens[qsp_lib_tokens.length - 1];
+            qsp_lib_menuData.push({ 'text' : qsp_lib_text,
+                                    'loc' : qsp_lib_loc,
+                                    'icon' : qsp_lib_icon
+                                  });
+        };
+    };
+    qsp_api_menu(qsp_lib_menuData);
+};
+function qsp_lib_play(qsp_lib_filename, qsp_lib_volume) {
+    if (qsp_lib_volume === undefined) {
+        qsp_lib_volume = 100;
+    };
+    var qsp_lib_audio = new qsp_lib_Audio(qsp_lib_filename);
+    qsp_Playing[qsp_lib_filename] = qsp_lib_audio;
+    qsp_lib_audio.qsp_lib_volume = qsp_lib_volume * 0.01;
+    __PS_MV_REG = [];
+    return qsp_lib_audio.qsp_lib_play();
+};
+function close(qsp_lib_filename) {
+    qsp_Playing[qsp_lib_filename](qsp_lib_stop);
+    delete qsp_Playing[qsp_lib_filename];
+};
+function qsp_lib_closeall() {
+    var _js23 = Object.keys(qsp_Playing);
+    var _js25 = _js23.length;
+    for (var _js24 = 0; _js24 < _js25; _js24 += 1) {
+        var qsp_lib_k = _js23[_js24];
+        var qsp_lib_v = qsp_Playing[qsp_lib_k];
+        qsp_lib_v(qsp_lib_stop);
+    };
+    return qsp_Playing = {  };
+};
+function qsp_lib_refint() {
+    return null;
+};
+function qsp_lib_usertxt() {
+    var qsp_lib_input = qsp_byId('qsp-input');
+    __PS_MV_REG = [];
+    return qsp_lib_input.qsp_lib_value;
+};
+function qsp_lib_cmdclear() {
+    var qsp_lib_input = qsp_byId('qsp-input');
+    __PS_MV_REG = [];
+    return qsp_lib_input.qsp_lib_value = '';
+};
+function qsp_lib_input(qsp_lib_text) {
+    return window.prompt(qsp_lib_text);
+};
+function qsp_lib_msecscount() {
+    return Date.now() - qsp_StartedAt;
+};
+function qsp_lib_rgb(qsp_lib_red, qsp_lib_green, qsp_lib_blue) {
+    return (qsp_lib_red << 16) + (qsp_lib_green << 8) + qsp_lib_blue;
+};
+function qsp_lib_openqst(qsp_lib_name) {
+    __PS_MV_REG = [];
+    return qsp_api_runGame(qsp_lib_name);
+};
+function qsp_lib_addqst(qsp_lib_name) {
+    var qsp_lib_game = qsp_api_filenameGame(qsp_lib_name);
+    __PS_MV_REG = [];
+    return Object.assign(qsp_Locs, qsp_Games[qsp_lib_name]);
+};
+function qsp_lib_killqst() {
+    var _js27 = qsp_Games.length;
+    for (var _js26 = 0; _js26 < _js27; _js26 += 1) {
+        var _db28 = qsp_Games[_js26];
+        var qsp_lib_k = _db28[0];
+        var qsp_lib_v = _db28[1];
+        if (qsp_lib_k !== qsp_MainGame) {
+            delete qsp_Locs[qsp_lib_k];
+        };
+    };
+};
+
+qsp_Games['game'] = {  };
+Object.assign(qsp_Globals, { 'I' : qsp_api_newVar('I', 0),
+                             '$ARGS' : qsp_api_newVar('$ARGS', 0),
+                             '$NEEDLE' : qsp_api_newVar('$NEEDLE', 0),
+                             'ANCIENT' : qsp_api_newVar('ANCIENT', 0),
+                             '$WINDOW' : qsp_api_newVar('$WINDOW'),
+                             'USEHTML' : qsp_api_newVar('USEHTML', 0),
+                             'RESULT' : qsp_api_newVar('RESULT', 0),
+                             '$RESULT' : qsp_api_newVar('$RESULT', 0),
+                             '$ONGLOAD' : qsp_api_newVar('$ONGLOAD', 0),
+                             '$ONGSAVE' : qsp_api_newVar('$ONGSAVE', 0),
+                             '$ONOBJADD' : qsp_api_newVar('$ONOBJADD', 0),
+                             '$ONOBJDEL' : qsp_api_newVar('$ONOBJDEL', 0),
+                             '$ONOBJSEL' : qsp_api_newVar('$ONOBJSEL', 0),
+                             '$ONNEWLOC' : qsp_api_newVar('$ONNEWLOC', 0),
+                             '$ONACTSEL' : qsp_api_newVar('$ONACTSEL', 0),
+                             '$COUNTER' : qsp_api_newVar('$COUNTER', 0),
+                             '$USERCOM' : qsp_api_newVar('$USERCOM', 0)
+                           });
+qsp_Games['game']['0'] = async function (qsp_lib_args) {
+    qsp_Globals['USEHTML'][0] = -1;
+    qsp_Globals['$ONOBJSEL'][0] = 'onobjsel';
+    qsp_lib_mainPl('История про одну простую девушку, скажем, Марью, которая однажды взглянула на мир по-другому и пыталась к этому привыкнуть.');
+    qsp_lib_mainPl('');
+    qsp_lib_mainPl('');
+    qsp_lib_mainPl('<center>v0.1a, DEMO!!!</center>');
+    qsp_api_addAct('Начать', '', async function (qsp_lib_args) {
+        qsp_api_clearAct();
+        qsp_lib_mainClear();
+        qsp_lib_goto('начало начал', null);
+        __PS_MV_REG = [];
+        return;
+    });
+    qsp_api_addAct('История изменений', '', async function (qsp_lib_args) {
+        qsp_api_clearAct();
+        qsp_lib_mainClear();
+        qsp_lib_goto('changelog', null);
+        __PS_MV_REG = [];
+        return;
+    });
+    __PS_MV_REG = [];
+    return;
+};
+qsp_Games['game']['CHANGELOG'] = async function (qsp_lib_args) {
+    qsp_lib_mainPl('<h1>История изменений</h1>');
+    qsp_lib_mainPl('<h2>0.1a</h2>');
+    qsp_lib_mainPl('<ul>');
+    qsp_lib_mainPl('  <li>Демка, че с нее еще взять?</li>');
+    qsp_lib_mainPl('</ul>');
+    qsp_api_addAct('Назад', '', async function (qsp_lib_args) {
+        qsp_api_clearAct();
+        qsp_lib_mainClear();
+        qsp_lib_goto('0', null);
+        __PS_MV_REG = [];
+        return;
+    });
+};
+qsp_Games['game']['ONOBJSEL'] = async function (qsp_lib_args) {
+    qsp_api_setStrElement(qsp_Globals['$WINDOW'], 'maintxt', qsp_lib_maintxt());
+    qsp_api_setStrElement(qsp_Globals['$WINDOW'], 'stattxt', qsp_lib_stattxt());
+    qsp_api_setStrElement(qsp_Globals['$WINDOW'], 'acts', qsp_lib_curacts());
+    qsp_lib_cls();
+    if (qsp_lib_selobj() === 'Мечта') {
+        qsp_lib_mainPl('Мечта, грезы, ну а для строгих людей — художественные навыки.');
+    } else if (qsp_lib_selobj() === 'Явь') {
+        qsp_lib_mainPl('Настоящий мир, в котором пребывает бренное тело.');
+    };
+    qsp_api_addAct('Назад', '', async function (qsp_lib_args) {
+        qsp_lib_mainClear();
+        qsp_lib_mainP(qsp_Globals['$WINDOW'][qsp_Globals['$WINDOW']['indexes']['maintxt']]);
+        qsp_lib_statClear();
+        qsp_lib_statP(qsp_Globals['$WINDOW'][qsp_Globals['$WINDOW']['indexes']['stattxt']]);
+        qsp_api_clearAct();
+        qsp_lib_dynamic(qsp_Globals['$WINDOW'][qsp_Globals['$WINDOW']['indexes']['acts']]);
+        qsp_api_killVar('$window', null);
+    });
+    qsp_lib_unsel();
+};
+qsp_Games['game']['КОНЕЦ ДЕМОВЕРСИИ'] = async function (qsp_lib_args) {
+    qsp_lib_mainPl('Марья балансировала на грани рутины и мечты, и быть может, из этого что-то бы получалось, а может, бросила бы мечту и посвятила целиком труду, а может, слишком сильно увлеклась искусством, зима застала врасплох, и прибрала к рукам неосторожную мечтательницу. У матери непременно бы раскрылась какая-то тайна, быть может, ее тоже посвящали подобные озарения, но к несчастью, обрывались тяжелой жизнью. Там еще скарб почившего отца мелькает на задворках закулисья аки ружье Чехова...');
+    qsp_lib_mainPl('И все это \"бы\", если бы не Малишка, Дракон и девица с труднопроизносимым именем не давили бы на автора. Но этим персонажам он еще <s>отомстит</s> посвятит не одну главу будущих недоделок, но это уже другая история. Все равно им благодарен, что помогли начать.');
+    qsp_api_addAct('Можно, кстати, сразиться за карандаши, так, забавы ради', '', async function (qsp_lib_args) {
+        qsp_api_clearAct();
+        qsp_lib_mainClear();
+        qsp_lib_goto('битва за карандаши', null);
+        __PS_MV_REG = [];
+        return;
+    });
+};
+qsp_Games['game']['НАЧАЛО НАЧАЛ'] = async function (qsp_lib_args) {
+    qsp_lib_mainPl('Где-то в далекой глуши, в одной деревеньке жила-была девушка Марья. Жила она непримечательной жизнью, самозабвенно трудилась на поле, помогала матушке, чем могла, да и горя-то не знала. Пока однажды одним унылым дождливым вечером не пришло озарение.');
+    qsp_api_addAct('...', '', async function (qsp_lib_args) {
+        qsp_api_clearAct();
+        qsp_lib_mainClear();
+        qsp_lib_goto('loc1', null);
+        __PS_MV_REG = [];
+        return;
+    });
+};
+qsp_Games['game']['LOC1'] = async function (qsp_lib_args) {
+    qsp_lib_mainPl('Свеча тускло освещала комнату. Марья сидела у окна и грустно разглядывала свое отражение, пока дождь стучался по стеклу. \"Впустить, что ли?\", — лениво подумала она, но и эта мысль ни капли не пошатнула уныние. Тогда решила она пририсовать улыбку прямо на стекле — пусть хоть так ее можно одолеть. Она небрежно провела кривую, потом еще раз... Штрих за штрихом воссоздавали картину мира, пусть и наивную и простую, но в ту минуту Марья окунулась в волшебство созидания. Рисовала она то ли наяву, то ли во сне, и лишь утром явь напомнила о себе: спина напрочь затекла, от свечи остался огарок, а вместе с ней — серьезный разговор с матушкой.');
+    qsp_api_addAct('...', '', async function (qsp_lib_args) {
+        qsp_api_clearAct();
+        qsp_lib_mainClear();
+        qsp_lib_goto('loc2', null);
+        __PS_MV_REG = [];
+        return;
+    });
+};
+qsp_Games['game']['LOC2'] = async function (qsp_lib_args) {
+    qsp_lib_mainPl('Что ж, матушка отнеслась с пониманием, но предупредила, что свечей осталось мало, и нужно беречь. Пришлось согласиться.');
+    qsp_lib_mainPl('');
+    qsp_lib_mainPl('День прошел в рутине, а о странном наваждении Марья вспомнила лишь под вечер.');
+    qsp_api_addAct('...', '', async function (qsp_lib_args) {
+        qsp_api_clearAct();
+        qsp_lib_mainClear();
+        qsp_lib_goto('loc3', null);
+        __PS_MV_REG = [];
+        return;
+    });
+};
+qsp_Games['game']['LOC3'] = async function (qsp_lib_args) {
+    qsp_lib_mainPl('Конечно, она знала про искусство, ведь всё в округе было пронизано им: глиняные кувшины, деревянные ложки, да даже обшарпанные стены могли похвастать росписью перед пытливым взором. Но все это раньше Марье казалось само собой разумеющимся, будто иначе и не могло быть. Это лишь часть мира, часть сущего. Но в тот дождливый вечер необычное будто сбросило оковы быта и предстало перед ней во всем своем великолепии.');
+    qsp_lib_mainPl('Сейчас она с упоением разглядывала узоры и восхищалась работами неизвестных мастеров. Ей хотелось повторить, даже дополнить, как бы это дерзко не казалось. В воображении она повторяла узоры, только наяву ничего не оставалась, как бы сильно не старалась. Глупая затея, ясно же. Нужны инструменты, только какие? Кисти? О чем-то таком она уже слышала. Возможно, это куда удобнее, чем пальцем рисовать. Она взглянула на окно — на стекле уже давно исчезли вчерашние шалости. Нужно что-то надежное, вечное. Краски? Где бы их взять...');
+    qsp_api_addAct('...', '', async function (qsp_lib_args) {
+        qsp_api_clearAct();
+        qsp_lib_mainClear();
+        qsp_lib_goto('loc4', null);
+        __PS_MV_REG = [];
+        return;
+    });
+};
+qsp_Games['game']['LOC4'] = async function (qsp_lib_args) {
+    qsp_lib_mainPl('Из наваждения ее вырвала матушка. Марья выронила ложку, будто ее застали за чем-то плохим, а все попытки взять себя в руки только усилили это чувство. Матушка неодобрительно цокнула:');
+    qsp_lib_mainPl('— Ложись спать, хватит свечи переводить понапрасну, — и исчезла в темноте. Да, она безусловно права. Нужна холодная рассудительность и расчетливость, а всё остальное — лишь праздные мысли, пустые мечтания... Но как же хочется хоть раз попробовать! От этого ведь никто не умирал... наверное. И все же страшно делиться с матерью переживанием, как бы сильно не хотелось. Она лишь спугнет этот огонек, и жизнь опять поблекнет. Ей стало настолько душно от этой мысли, что она расстегнула воротник. Она сама во всем разберется, не девочка уже, в покровительстве не нуждается. Но всё завтра, только завтра, ведь утро вечером мудренее, и стоит к этому прислушаться.');
+    qsp_lib_addobj('Мечта', 'https://discord.com/assets/fccc6b7583e67ffbe59b5ff17bb220f3.svg');
+    qsp_lib_addobj('Явь', 'https://discord.com/assets/6c8c8654d649bee316b88e2342b6c8fa.svg');
+    qsp_api_addAct('...', '', async function (qsp_lib_args) {
+        qsp_api_clearAct();
+        qsp_lib_mainClear();
+        qsp_lib_goto('время действовать', null);
+        __PS_MV_REG = [];
+        return;
+    });
+};
+qsp_Games['game']['ВРЕМЯ ДЕЙСТВОВАТЬ'] = async function (qsp_lib_args) {
+    qsp_lib_mainPl('Настал новый день, и вместе с ним пришла решимость. Только с чего бы начать?');
+    qsp_lib_mainPl('Сейчас сезон грибов, и можно (да и нужно) сходить за ними. Отчего-то взгляд упал на уголек, надо бы и его с собой прихватить, так, на всякий случай.');
+    qsp_lib_addobj('Уголек');
+    qsp_api_addAct('В лес за грибами', '', async function (qsp_lib_args) {
+        qsp_api_clearAct();
+        qsp_lib_mainClear();
+        qsp_lib_goto('за грибами', null);
+        __PS_MV_REG = [];
+        return;
+    });
+};
+qsp_Games['game']['НАГОНЯЙ'] = async function (qsp_lib_args) {
+    qsp_lib_mainPl('После хорошенького нагоняя...');
+    qsp_api_addAct('...', '', async function (qsp_lib_args) {
+        qsp_api_clearAct();
+        qsp_lib_mainClear();
+        qsp_lib_goto('дом', null);
+        __PS_MV_REG = [];
+        return;
+    });
+};
+qsp_Games['game']['ДОМ'] = async function (qsp_lib_args) {
+    qsp_lib_mainPl('Вечер, ночь, утро...');
+    qsp_api_addAct('...', '', async function (qsp_lib_args) {
+        qsp_api_clearAct();
+        qsp_lib_mainClear();
+        qsp_lib_goto('время действовать', null);
+        __PS_MV_REG = [];
+        return;
+    });
+    if (qsp_Globals['ANCIENT'][0] === 2) {
+        qsp_lib_mainPl('');
+        qsp_lib_mainPl('Извините, но историй больше нет');
+        qsp_api_addAct('конец демоверсии', '', async function (qsp_lib_args) {
+            qsp_api_clearAct();
+            qsp_lib_mainClear();
+            qsp_lib_goto('конец демоверсии', null);
+            __PS_MV_REG = [];
+            return;
+        });
+    };
+};
+qsp_Games['game']['ГРИБНОЙ КОНЕЦ'] = async function (qsp_lib_args) {
+    qsp_lib_mainPl('Однажды она проснулась и поняла, что в грибном деле тоже есть своя прелесть.');
+    qsp_lib_mainPl('А искусство? Пустые грезы и только! Давно пора было повзрослеть. В конце концов, всегда можно вернуться к мечте в любое время. Это лишь легкий перерыв, и только.');
+    qsp_lib_mainPl('Она с толикой грусти взглянула на потрепанный карандаш и упрятала его вглубь ящика... навсегда.');
+    qsp_lib_mainPl('Марья стала грибным магнатом, как бы это забавно не звучало. Дела действительно шли неплохо, по крайней мере, лишений она не знала. Возможно, в будущем у нее объявился какой-нибудь Иннокентий, с которым она связала свою жизнь, а может, как говорится, навеки обручилась со своей работой. Ее мечта осталась на дне ящика, быть может, это даже к лучшему.');
+    qsp_lib_mainPl('Достигнута 1 концовка из {?}');
+};
+qsp_Games['game']['GETOBJBYKEY'] = async function (qsp_lib_args) {
+    var qsp_lib__labels = [];
+    qsp_lib__labels['_nil'] = async function () {
+        qsp_Globals['$NEEDLE'][0] = qsp_Globals['$ARGS'][0];
+        qsp_Globals['I'][0] = 1;
+        return 'LOOP';
+    };
+    qsp_lib__labels['LOOP'] = async function () {
+        while (true) {
+            if (qsp_Globals['I'][0] <= qsp_Objs.length) {
+                if ((qsp_Objs[qsp_Globals['I'][0]] || '') === qsp_Globals['$NEEDLE'][0]) {
+                    qsp_Globals['RESULT'][0] = qsp_Globals['I'][0];
+                    return;
+                } else {
+                    qsp_Globals['I'][0] += 1;
+                    continue;
+                };
+            };
+            qsp_Globals['RESULT'][0] = -1;
+            break;
+        };
+    };
+    for (var qsp_lib__nextblock = '_nil'; qsp_lib__nextblock; qsp_lib__nextblock = await (qsp_lib__labels[qsp_lib__nextblock]())) {
+    };
+};
+qsp_Games['game']['ДРЕВНИЕ РУИНЫ'] = async function (qsp_lib_args) {
+    qsp_Globals['ANCIENT'][0] = 2;
+    qsp_lib_mainPl('Марья блуждала по лесу и забрела на неизвестную тропу. Сложно было устоять, когда она сама манила на встречу к приключениям. Марья пошла по тропинке, пока не набрела на древние руины — так она их сразу нарекла. Быть может, это были самые обыкновенные камни, но она видела в них древние изваяния. Самое то, чтобы запечатлеть картину.');
+    qsp_Globals['I'][0] = qsp_lib_func('getObjByKey', 'Уголек');
+    if (qsp_Globals['I'][0] === -1) {
+        qsp_lib_mainPl('Только, увы (а может, к счастью?), нечем. Пришлось собрать грибы и отправиться домой.');
+        qsp_api_addAct('Домой', '', async function (qsp_lib_args) {
+            qsp_api_clearAct();
+            qsp_lib_mainClear();
+            qsp_lib_goto('дом', null);
+            __PS_MV_REG = [];
+            return;
+        });
+    } else {
+        qsp_api_addAct('Нарисовать', '', async function (qsp_lib_args) {
+            qsp_api_clearAct();
+            qsp_lib_mainClear();
+            qsp_lib_mainPl('TODO');
+            qsp_lib_delobj('Уголек');
+            qsp_api_addAct('...', '', async function (qsp_lib_args) {
+                qsp_api_clearAct();
+                qsp_lib_mainClear();
+                qsp_lib_goto('нагоняй', null);
+                __PS_MV_REG = [];
+                return;
+            });
+        });
+        qsp_api_addAct('Собрать грибы и отправиться домой', '', async function (qsp_lib_args) {
+            qsp_api_clearAct();
+            qsp_lib_mainClear();
+            qsp_lib_goto('дом', null);
+            __PS_MV_REG = [];
+            return;
+        });
+    };
+};
+qsp_Games['game']['ЧЕМ МОЖНО ЗАНИМАТЬСЯ?'] = async function (qsp_lib_args) {
+};
+qsp_Games['game']['ЗА ГРИБАМИ'] = async function (qsp_lib_args) {
+    qsp_lib_mainPl('Природа восхищала своими красками, а воображение рисовало причудливые картины: битва с медведем; человек, бегущий от кабана; обычный день в племени человекообразных грибов и прочие разнузданные сюжеты. Может, зарисовать, что-нибудь? Благо, угольки с собой, а неподалеку — плоский камушек. А с другой стороны, нужно грибы собирать, иначе есть нечего будет.');
+    if (qsp_Globals['I'][0] === -1) {
+        qsp_lib_mainPl('Только, увы (а может, к счастью?), нечем.');
+    } else {
+        qsp_api_addAct('Сесть и зарисовать', '', async function (qsp_lib_args) {
+            qsp_api_clearAct();
+            qsp_lib_mainClear();
+            qsp_lib_delobj('Уголек');
+            qsp_lib_mainPl('Взяла плоский камушек, нашла пенек поудобнее и погрузилась в дивный мир. Время шло, грибы наивно ждали часа своего. Видимо, в этот раз судьбоносная длань, что была предсказана старейшим грибом, так их и не заберет в лучший мир.');
+            qsp_lib_mainPl('Марья вынырнула из мира грез, осмотрела итог и довольно кивнула. Но радость длилась недолго: сумерки застали врасплох и вынуждала вернуться ни с чем. Стыдно теперь матушке на глаза попадаться, а еще больше — лгать, что грибов не нашла.');
+            qsp_api_addAct('Домой', '', async function (qsp_lib_args) {
+                qsp_api_clearAct();
+                qsp_lib_mainClear();
+                qsp_lib_goto('нагоняй', null);
+                __PS_MV_REG = [];
+                return;
+            });
+        });
+    };
+    qsp_api_addAct('Собирать грибы', '', async function (qsp_lib_args) {
+        qsp_api_clearAct();
+        qsp_lib_mainClear();
+        if (qsp_Globals['ANCIENT'][0] === 1) {
+            qsp_lib_goto('древние руины', null);
+            __PS_MV_REG = [];
+            return;
+        } else {
+            qsp_lib_mainPl('Что ж, в этом тоже есть своя прелесть, пока, конечно, ветви и прочие недружелюбные формы жизни не начнут объяснять, что чужакам здесь не рады.');
+            qsp_lib_mainPl('Корзина собрана — пора домой.');
+            qsp_Globals['ANCIENT'][0] = 1;
+        };
+        qsp_api_addAct('Домой', '', async function (qsp_lib_args) {
+            qsp_api_clearAct();
+            qsp_lib_mainClear();
+            qsp_lib_goto('дом', null);
+            __PS_MV_REG = [];
+            return;
+        });
+    });
+    if (qsp_Globals['ANCIENT'][0] === 2) {
+        qsp_api_addAct('Сходить в древние руины', '', async function (qsp_lib_args) {
+            qsp_api_clearAct();
+            qsp_lib_mainClear();
+            qsp_lib_mainPl('Не-е, лучше не надо.');
+            qsp_api_addAct('...', '', async function (qsp_lib_args) {
+                qsp_api_clearAct();
+                qsp_lib_mainClear();
+                qsp_lib_goto('за грибами', null);
+                __PS_MV_REG = [];
+                return;
+            });
+        });
+    };
+};
+qsp_Games['game']['НАЧАЛО'] = async function (qsp_lib_args) {
+    qsp_lib_mainPl('Где-то в далекой глуши, в одной деревеньке жила-была художница Марья. Жители восхищались ее искусством, однако она отмахивалась: мол, что они могут понимать? Не любила она свои работы: что-то с ними было не так, да и инструментов подходящих не было — всё старые, дедовские кисти. Вот были бы новые, достойные ее умения, тогда бы непременно всё получилось, и мир увидел бы шедевр.');
+    qsp_lib_mainPl('Она настолько прониклась этой мыслью, что стала браться за любую работу, лишь бы скопить денег да купить достойные кисти: чтобы непременно были из загадочной заграницы и руки сами выводили картины. Грезы помогали ей справляться с тяжелой работой.');
+    qsp_lib_mainPl('Однажды в деревню пожаловал купец со своим скарбом, {?}');
+    qsp_api_addAct('...', '', async function (qsp_lib_args) {
+        qsp_lib_goto('чужестранец', null);
+        __PS_MV_REG = [];
+        return;
+    });
+};
+qsp_Games['game']['ЧУЖЕСТРАНЕЦ'] = async function (qsp_lib_args) {
+    qsp_lib_mainPl('Однажды в деревню пожаловал авантюрист, он же — фольклорист, как его тотчас нарекли жители. Интересовался всем подряд да в книжечку свою заносил.');
+    qsp_lib_mainPl('И так бы он рано или поздно насытился местным бытом и отправился бы куда подальше, да только некоторые вдруг задумались: \"А че эта он сует нос куда попало?\" Застали как-то раз его в тишине ночной и решили проучить.');
+    qsp_lib_mainPl('Но Марья заступилась за незнакомца и проучила обидчиков.');
+    qsp_lib_mainPl('Молодой человек обрушился на нее с вопросами, что в особую минуту, она уже начала жалеть, что спасла его. Не прошло и минуты, как он прознал, что она в свободное время пишет картины.');
+    qsp_lib_mainPl('Увязался он настолько крепко, что она чуть ли не сбежала от него в дом, а он все продолжал своим покажите, добрая сударыня, да покажите.');
+    qsp_lib_mainPl('Пожилая матушка ухмылялась: мол, кавалер наконец-то объявился. И Марья уже начала откровенно проклинать этот день.');
+    qsp_lib_mainPl('Закрылась у себя в комнате и начала осматривать свои бестолковые творения.');
+    qsp_lib_mainPl('\"Что тут показывать?\" — глубоко вздохнула Марья и устало растянулась на кровати. Не то чтобы она собиралась показывать этому прохвосту, но мало ли. Ну воскликнет: \"Что за мазня?!\" — и будет прав. Деревенских-то удивить проще простого: кругозор ведь не велик, то ли дело удивлять повидавшего мир человека. Грр, да ну его!');
+    qsp_lib_mainPl('А руки сами тянулись к злополучным кистям и пытались изобразить настырного человека. Хотелось подчеркнуть его назойливость...');
+    qsp_lib_mainPl('Увлеклась настолько, что сон напрочь сморил, и она уснула прямо за столом');
+    qsp_lib_mainPl('пока однажды не прознала про легендарные карандаши в далеких землях. Само собой, она тотчас бросилась их искать.');
+    qsp_api_addAct('...', '', async function (qsp_lib_args) {
+        qsp_lib_goto('путешествие', null);
+        __PS_MV_REG = [];
+        return;
+    });
+};
+qsp_Games['game']['ПУТЕШЕСТВИЕ'] = async function (qsp_lib_args) {
+    qsp_lib_mainPl('Она продиралась сквозь зимнюю стужу, томилась под палящим солнцем пустыни, обретала друзей, теряла соратников, попадала в таинственные переплеты, пока наконец не достигла древнего места, где согласно легендам хранились легендарные карандаши.');
+    qsp_api_addAct('...', '', async function (qsp_lib_args) {
+        qsp_lib_goto('владелец реликвии', null);
+        __PS_MV_REG = [];
+        return;
+    });
+};
+qsp_Games['game']['ВЛАДЕЛЕЦ РЕЛИКВИИ'] = async function (qsp_lib_args) {
+    qsp_lib_mainPl('— Ах, дом, милый дом');
+    qsp_api_addAct('...', '', async function (qsp_lib_args) {
+        qsp_lib_goto('битва за карандаши', null);
+        __PS_MV_REG = [];
+        return;
+    });
+};
+qsp_Games['game']['БИТВА ЗА КАРАНДАШИ'] = async function (qsp_lib_args) {
+    qsp_lib_mainPl('Оставалось лишь руку протянуть до вожделенного плода, как перед ней возникло древнее зло и схватило карандаши. Битва продолжалась до самого заката, и наконец она смогла вырвать из его мертвых рук карандаши.');
+    qsp_api_addAct('...', '', async function (qsp_lib_args) {
+        qsp_lib_goto('нелегкий выбор', null);
+        __PS_MV_REG = [];
+        return;
+    });
+};
+qsp_Games['game']['НЕЛЕГКИЙ ВЫБОР'] = async function (qsp_lib_args) {
+    qsp_lib_mainPl('Руки тряслись, сердце бешено колотилось после смертельного боя, но она все же нашла в себе силы: достала холст и изобразила арбуз в мягких тонах.');
+    qsp_api_addAct('...', '', async function (qsp_lib_args) {
+        qsp_lib_goto('эпилог', null);
+        __PS_MV_REG = [];
+        return;
+    });
+};
+qsp_Games['game']['ЭПИЛОГ'] = async function (qsp_lib_args) {
+    qsp_lib_mainPl('<s>TODO</s> Конец!');
+    __PS_MV_REG = [];
+    return;
+};</script></body></html>
