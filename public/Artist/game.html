@@ -162,6 +162,7 @@
     background-color: blue;
 }
 </style><script>var qsp_Globals = {  };
+var qsp_DefaultGlobals = {  };
 var qsp_Objs = {  };
 var qsp_CurrentLocation = null;
 var qsp_StartedAt = Date.now();
@@ -181,7 +182,9 @@ function qsp_start() {
     qsp_api_initDom();
     qsp_StartedAt = Date.now();
     qsp_api_setTimer(qsp_TimerInterval);
-    qsp_api_runGame(Object.keys(qsp_Games)[0]);
+    var qsp_firstGame = Object.keys(qsp_Games)[0];
+    qsp_api_initGlobals(qsp_firstGame);
+    qsp_api_runGame(qsp_firstGame);
     __PS_MV_REG = [];
     return;
 };
@@ -245,11 +248,14 @@ function qsp_api_initDom() {
         return qsp_api_finishMenu(null);
     };
 };
+function qsp_api_initGlobals(qsp_api_gameName) {
+    return Object.assign(qsp_Globals, qsp_DefaultGlobals[qsp_api_gameName]);
+};
 function qsp_api_callServLoc(qsp_api_varName) {
     var qsp_api_args = Array.prototype.slice.call(arguments, 1);
     var qsp_api_locName = qsp_api_getGlobal(qsp_api_varName, 0);
     if (qsp_api_locName) {
-        var qsp_api_loc = qsp_Locs[qsp_api_locName];
+        var qsp_api_loc = qsp_Locs[qsp_api_locName.toUpperCase()];
         __PS_MV_REG = [];
         return qsp_api_loc ? qsp_api_callLoc(qsp_api_locName, qsp_api_args) : null;
     };
@@ -301,12 +307,16 @@ function qsp_api_onInputKey(qsp_api_ev) {
     };
 };
 function qsp_api_initArgs(qsp_api_args) {
-    for (var qsp_api_i = 0; qsp_api_i < qsp_api_args.length; qsp_api_i += 1) {
-        var qsp_api_arg = qsp_api_args[qsp_api_i];
-        if (typeof qsp_api_arg === 'number') {
-            qsp_api_setVar(qsp_api_args, qsp_api_i, 'num', qsp_api_arg);
-        } else {
-            qsp_api_setVar(qsp_api_args, qsp_api_i, 'str', qsp_api_arg);
+    for (var qsp_api_i = 0; qsp_api_i < 10; qsp_api_i += 1) {
+        qsp_api_setGlobal('ARGS', qsp_api_i, 0);
+        qsp_api_setGlobal('$ARGS', qsp_api_i, '');
+        if (qsp_api_args && qsp_api_i < qsp_api_args.length) {
+            var qsp_api_arg = qsp_api_args[qsp_api_i];
+            if (typeof qsp_api_arg === 'number') {
+                qsp_api_setGlobal('ARGS', qsp_api_i, qsp_api_arg);
+            } else {
+                qsp_api_setGlobal('$ARGS', qsp_api_i, qsp_api_arg);
+            };
         };
     };
 };
@@ -320,7 +330,8 @@ function qsp_api_callLoc(qsp_api_name, qsp_api_args) {
     try {
         qsp_api_initArgs(qsp_api_args);
         qsp_Locs[qsp_api_name]();
-        qsp_api_getResult();
+        __PS_MV_REG = [];
+        return qsp_api_getResult();
     } finally {
         qsp_api_popLocalFrame();
     };
@@ -412,15 +423,6 @@ function qsp_api_selectAct(qsp_api_title) {
     __PS_MV_REG = [];
     return qsp_api_callServLoc('$ONACTSEL');
 };
-function qsp_api_qspfor(qsp_api_name, qsp_api_index, qsp_api_from, qsp_api_to, step, body) {
-    for (var qsp_api_i = qsp_api_from; qsp_api_i <= qsp_api_to; qsp_api_i += step) {
-        qsp_api_setVar(qsp_api_name, qsp_api_index, 'num', qsp_api_i);
-        if (!await (body())) {
-            __PS_MV_REG = [];
-            return;
-        };
-    };
-};
 function qsp_api_newVar(qsp_api_slot) {
     var qsp_api_indexes = Array.prototype.slice.call(arguments, 1);
     var qsp_api_v = [];
@@ -434,10 +436,10 @@ function qsp_api_newVar(qsp_api_slot) {
 };
 function qsp_api_setStrElement(qsp_api_slot, qsp_api_index, qsp_api_value) {
     if (qsp_api_slot['indexes'].hasOwnProperty(qsp_api_index)) {
-        qsp_api_slot[null][qsp_api_slot['indexes'][qsp_api_index]] = qsp_api_value;
+        qsp_api_slot[qsp_api_slot['indexes'][qsp_api_index]] = qsp_api_value;
     } else {
         qsp_api_slot.push(qsp_api_value);
-        qsp_api_slot[qsp_api_index] = qsp_api_slot.length;
+        qsp_api_slot['indexes'][qsp_api_index] = qsp_api_slot.length - 1;
     };
 };
 function qsp_api_setAnyElement(qsp_api_slot, qsp_api_index, qsp_api_value) {
@@ -459,15 +461,26 @@ function qsp_api_setServVar(qsp_api_name, qsp_api_index, qsp_api_value) {
 function qsp_api_getElement(qsp_api_slot, qsp_api_index) {
     return typeof qsp_api_index === 'number' ? qsp_api_slot[qsp_api_index] : qsp_api_slot[qsp_api_slot['indexes'][qsp_api_index]];
 };
-function qsp_api_getGlobal(qsp_api_name, qsp_api_index) {
-    return qsp_Globals[qsp_api_name][qsp_api_index];
+function qsp_api_setGlobal(qsp_api_name, qsp_api_index, qsp_api_value) {
+    __PS_MV_REG = [];
+    return qsp_api_setAnyElement(qsp_Globals[qsp_api_name], qsp_api_index, qsp_api_value);
 };
-function qsp_api_killVar(qsp_api_store, qsp_api_name, qsp_api_index) {
-    qsp_api_name = qsp_api_name.toUpperCase();
-    if (qsp_api_index && 0 !== qsp_api_index) {
-        qsp_Globals[qsp_api_name].qsp_api_kill(qsp_api_index);
+function qsp_api_getGlobal(qsp_api_name, qsp_api_index) {
+    __PS_MV_REG = [];
+    return qsp_api_getElement(qsp_Globals[qsp_api_name], qsp_api_index);
+};
+function qsp_api_killVar(qsp_api_name, qsp_api_index) {
+    if (qsp_api_name) {
+        qsp_api_name = qsp_api_name.toUpperCase();
+        if (qsp_api_index && 0 !== qsp_api_index) {
+            qsp_Globals[qsp_api_name].qsp_api_kill(qsp_api_index);
+        } else {
+            qsp_Globals[qsp_api_name] = [];
+            qsp_Globals[qsp_api_name]['indexes'] = {  };
+        };
     } else {
-        delete qsp_Globals[qsp_api_name];
+        qsp_Globals = {  };
+        qsp_api_initGlobals(qsp_MainGame);
     };
 };
 function qsp_api_arraySize(qsp_api_name) {
@@ -571,21 +584,6 @@ function qsp_api_showImage(qsp_api_path) {
         return qsp_api_img.style.display = 'hidden';
     };
 };
-function qsp_api_showInlineImages(qsp_api_frameName, qsp_api_images) {
-    var qsp_api_frame = qsp_api_getFrame(qsp_api_frameName);
-    var qsp_api_text = '';
-    qsp_api_text += '<div style=\'position:relative; display: inline-block\'>';
-    qsp_api_text += '<img src=\'' + qsp_api_images[0] + '\'>';
-    var _js9 = qsp_api_images.slice(1);
-    var _js11 = _js9.length;
-    for (var _js10 = 0; _js10 < _js11; _js10 += 1) {
-        var qsp_api_image = _js9[_js10];
-        qsp_api_text += '<img style=\'position:absolute\' src=\'' + qsp_api_image + '\'>';
-    };
-    qsp_api_text += '</div>';
-    __PS_MV_REG = [];
-    return qsp_api_frame.innerHTML += qsp_api_text;
-};
 function qsp_api_rgbString(qsp_api_rgb) {
     var qsp_api_red = qsp_api_rgb >> 16;
     var qsp_api_green = qsp_api_rgb >> 8 & 255;
@@ -684,10 +682,10 @@ function qsp_api_unstashState() {
     var qsp_api_data = JSON.parse(qsp_StateStash);
     qsp_api_clearAct();
     qsp_Globals = qsp_api_data['vars'];
-    var _js12 = Object.keys(qsp_Globals);
-    var _js14 = _js12.length;
-    for (var _js13 = 0; _js13 < _js14; _js13 += 1) {
-        var qsp_api_k = _js12[_js13];
+    var _js9 = Object.keys(qsp_Globals);
+    var _js11 = _js9.length;
+    for (var _js10 = 0; _js10 < _js11; _js10 += 1) {
+        var qsp_api_k = _js9[_js10];
         Object.setPrototypeOf(qsp_Globals[qsp_api_k], qsp_api_Var.prototype);
     };
     qsp_StartedAt = Date.now() - qsp_api_data['msecs'];
@@ -767,10 +765,10 @@ function qsp_lib_rand(qsp_lib_a, qsp_lib_b) {
     if (qsp_lib_b === undefined) {
         qsp_lib_b = 1;
     };
-    var min15 = Math.min(qsp_lib_a, qsp_lib_b);
-    var max16 = Math.max(qsp_lib_a, qsp_lib_b);
+    var min12 = Math.min(qsp_lib_a, qsp_lib_b);
+    var max13 = Math.max(qsp_lib_a, qsp_lib_b);
     __PS_MV_REG = [];
-    return min15 + qsp_lib_Math.random(max16 - min15);
+    return min12 + qsp_lib_Math.random(max13 - min12);
 };
 function qsp_lib_copyarr(qsp_lib_to, qsp_lib_from, qsp_lib_start, count) {
     __PS_MV_REG = [];
@@ -779,8 +777,8 @@ function qsp_lib_copyarr(qsp_lib_to, qsp_lib_from, qsp_lib_start, count) {
     __PS_MV_REG = [];
     var qsp_lib_fromName = qsp_api_varRealName(qsp_lib_from);
     var qsp_lib_fromSlot = __PS_MV_REG[0];
-    var _js17 = Math.min(qsp_api_arraySize(qsp_lib_fromName), qsp_lib_start + count);
-    for (var qsp_lib_i = qsp_lib_start; qsp_lib_i <= _js17; qsp_lib_i += 1) {
+    var _js14 = Math.min(qsp_api_arraySize(qsp_lib_fromName), qsp_lib_start + count);
+    for (var qsp_lib_i = qsp_lib_start; qsp_lib_i <= _js14; qsp_lib_i += 1) {
         qsp_api_setVar(qsp_lib_toName, qsp_lib_start + qsp_lib_i, qsp_lib_toSlot, qsp_api_getVar(qsp_lib_fromName, qsp_lib_start + qsp_lib_i, qsp_lib_fromSlot));
     };
 };
@@ -791,8 +789,8 @@ function qsp_lib_arrpos(qsp_lib_name, qsp_lib_value, qsp_lib_start) {
     __PS_MV_REG = [];
     var qsp_lib_realName = qsp_api_varRealName(qsp_lib_name);
     var qsp_lib_slot = __PS_MV_REG[0];
-    var _js18 = qsp_api_arraySize(qsp_lib_name);
-    for (var qsp_lib_i = qsp_lib_start; qsp_lib_i <= _js18; qsp_lib_i += 1) {
+    var _js15 = qsp_api_arraySize(qsp_lib_name);
+    for (var qsp_lib_i = qsp_lib_start; qsp_lib_i <= _js15; qsp_lib_i += 1) {
         if (qsp_api_getVar(qsp_lib_realName, qsp_lib_i, qsp_lib_slot) === qsp_lib_value) {
             __PS_MV_REG = [];
             return qsp_lib_i;
@@ -808,8 +806,8 @@ function qsp_lib_arrcomp(qsp_lib_name, qsp_lib_pattern, qsp_lib_start) {
     __PS_MV_REG = [];
     var qsp_lib_realName = qsp_api_varRealName(qsp_lib_name);
     var qsp_lib_slot = __PS_MV_REG[0];
-    var _js19 = qsp_api_arraySize(qsp_lib_name);
-    for (var qsp_lib_i = qsp_lib_start; qsp_lib_i <= _js19; qsp_lib_i += 1) {
+    var _js16 = qsp_api_arraySize(qsp_lib_name);
+    for (var qsp_lib_i = qsp_lib_start; qsp_lib_i <= _js16; qsp_lib_i += 1) {
         if (qsp_api_getVar(qsp_lib_realName, qsp_lib_i, qsp_lib_slot).match(qsp_lib_pattern)) {
             __PS_MV_REG = [];
             return qsp_lib_i;
@@ -865,8 +863,8 @@ function qsp_lib_dynamic(block) {
         qsp_api_reportError('DYNAMIC can\'t evaluate arbitrary strings.\\nUse {braces} to create blocks for DYNAMIC.');
     };
     qsp_api_initArgs(qsp_lib_args);
-    block(qsp_lib_args);
-    qsp_api_getResult();
+    __PS_MV_REG = [];
+    return block();
 };
 function qsp_lib_dyneval(block) {
     var qsp_lib_args = Array.prototype.slice.call(arguments, 1);
@@ -874,7 +872,7 @@ function qsp_lib_dyneval(block) {
         qsp_api_reportError('DYNEVAL can\'t evaluate arbitrary strings.\\nUse {braces} to create blocks for DYNEVAL.');
     };
     qsp_api_initArgs(qsp_lib_args);
-    block(qsp_lib_args);
+    block();
     __PS_MV_REG = [];
     return qsp_api_getResult();
 };
@@ -889,10 +887,11 @@ function qsp_lib_mainNl(qsp_lib_s) {
     qsp_api_newline('main');
     qsp_api_addText('main', qsp_lib_s);
 };
-function qsp_lib_maintxt(qsp_lib_s) {
-    qsp_api_getText('main');
+function qsp_lib_maintxt() {
+    __PS_MV_REG = [];
+    return qsp_api_getText('main');
 };
-function qsp_lib_desc(qsp_lib_s) {
+function qsp_lib_desc() {
     return '';
 };
 function qsp_lib_mainClear() {
@@ -909,8 +908,9 @@ function qsp_lib_statNl(qsp_lib_s) {
     qsp_api_newline('stat');
     qsp_api_addText('stat', qsp_lib_s);
 };
-function qsp_lib_stattxt(qsp_lib_s) {
-    qsp_api_getText('stat');
+function qsp_lib_stattxt() {
+    __PS_MV_REG = [];
+    return qsp_api_getText('stat');
 };
 function qsp_lib_statClear() {
     qsp_api_clearText('stat');
@@ -930,10 +930,10 @@ function qsp_lib_selact() {
     };
 };
 function qsp_lib_curacts() {
-    var qsp_lib_acts = qsp_api_copyObj(qsp_Acts);
-    __PS_MV_REG = [];
+    var qsp_lib_acts = Object.assign({  }, qsp_Acts);
     return function () {
         qsp_Acts = qsp_lib_acts;
+        qsp_api_updateActs();
     };
 };
 function qsp_lib_addobj(qsp_lib_name, qsp_lib_img) {
@@ -951,7 +951,7 @@ function qsp_lib_delobj(qsp_lib_name) {
     qsp_api_callServLoc('$ONOBJDEL', qsp_lib_name);
 };
 function qsp_lib_killobj(qsp_lib_num) {
-    if (null === qsp_lib_num) {
+    if (undefined === qsp_lib_num) {
         qsp_Objs = {  };
     } else {
         qsp_lib_delobj(Object.keys(qsp_Objs)[qsp_lib_num]);
@@ -974,10 +974,10 @@ function qsp_lib_unsel() {
 };
 function qsp_lib_menu(qsp_lib_menuName) {
     var qsp_lib_menuData = [];
-    var _js20 = qsp_api_getArray(qsp_api_varRealName(qsp_lib_menuName)).values;
-    var _js22 = _js20.length;
-    for (var _js21 = 0; _js21 < _js22; _js21 += 1) {
-        var qsp_lib_itemObj = _js20[_js21];
+    var _js17 = qsp_api_getArray(qsp_api_varRealName(qsp_lib_menuName)).values;
+    var _js19 = _js17.length;
+    for (var _js18 = 0; _js18 < _js19; _js18 += 1) {
+        var qsp_lib_itemObj = _js17[_js18];
         var qsp_lib_item = qsp_lib_itemObj['str'];
         if (qsp_lib_item === '') {
             break;
@@ -1014,10 +1014,10 @@ function close(qsp_lib_filename) {
     delete qsp_Playing[qsp_lib_filename];
 };
 function qsp_lib_closeall() {
-    var _js23 = Object.keys(qsp_Playing);
-    var _js25 = _js23.length;
-    for (var _js24 = 0; _js24 < _js25; _js24 += 1) {
-        var qsp_lib_k = _js23[_js24];
+    var _js20 = Object.keys(qsp_Playing);
+    var _js22 = _js20.length;
+    for (var _js21 = 0; _js21 < _js22; _js21 += 1) {
+        var qsp_lib_k = _js20[_js21];
         var qsp_lib_v = qsp_Playing[qsp_lib_k];
         qsp_lib_v(qsp_lib_stop);
     };
@@ -1055,11 +1055,11 @@ function qsp_lib_addqst(qsp_lib_name) {
     return Object.assign(qsp_Locs, qsp_Games[qsp_lib_name]);
 };
 function qsp_lib_killqst() {
-    var _js27 = qsp_Games.length;
-    for (var _js26 = 0; _js26 < _js27; _js26 += 1) {
-        var _db28 = qsp_Games[_js26];
-        var qsp_lib_k = _db28[0];
-        var qsp_lib_v = _db28[1];
+    var _js24 = qsp_Games.length;
+    for (var _js23 = 0; _js23 < _js24; _js23 += 1) {
+        var _db25 = qsp_Games[_js23];
+        var qsp_lib_k = _db25[0];
+        var qsp_lib_v = _db25[1];
         if (qsp_lib_k !== qsp_MainGame) {
             delete qsp_Locs[qsp_lib_k];
         };
@@ -1067,27 +1067,29 @@ function qsp_lib_killqst() {
 };
 
 qsp_Games['game'] = {  };
-Object.assign(qsp_Globals, { 'I' : qsp_api_newVar('I', 0),
-                             '$ARGS' : qsp_api_newVar('$ARGS', 0),
-                             '$NEEDLE' : qsp_api_newVar('$NEEDLE', 0),
-                             'ANCIENT' : qsp_api_newVar('ANCIENT', 0),
-                             '$WINDOW' : qsp_api_newVar('$WINDOW'),
-                             'USEHTML' : qsp_api_newVar('USEHTML', 0),
-                             'RESULT' : qsp_api_newVar('RESULT', 0),
-                             '$RESULT' : qsp_api_newVar('$RESULT', 0),
-                             '$ONGLOAD' : qsp_api_newVar('$ONGLOAD', 0),
-                             '$ONGSAVE' : qsp_api_newVar('$ONGSAVE', 0),
-                             '$ONOBJADD' : qsp_api_newVar('$ONOBJADD', 0),
-                             '$ONOBJDEL' : qsp_api_newVar('$ONOBJDEL', 0),
-                             '$ONOBJSEL' : qsp_api_newVar('$ONOBJSEL', 0),
-                             '$ONNEWLOC' : qsp_api_newVar('$ONNEWLOC', 0),
-                             '$ONACTSEL' : qsp_api_newVar('$ONACTSEL', 0),
-                             '$COUNTER' : qsp_api_newVar('$COUNTER', 0),
-                             '$USERCOM' : qsp_api_newVar('$USERCOM', 0)
-                           });
+qsp_DefaultGlobals['game'] = { 'I' : qsp_api_newVar('I', 0),
+                            '$NEEDLE' : qsp_api_newVar('$NEEDLE', 0),
+                            'ANCIENT' : qsp_api_newVar('ANCIENT', 0),
+                            '$WINDOW' : qsp_api_newVar('$WINDOW'),
+                            'USEHTML' : qsp_api_newVar('USEHTML', 0),
+                            'ARGS' : qsp_api_newVar('ARGS', 0),
+                            '$ARGS' : qsp_api_newVar('$ARGS', 0),
+                            'RESULT' : qsp_api_newVar('RESULT', 0),
+                            '$RESULT' : qsp_api_newVar('$RESULT', 0),
+                            '$ONGLOAD' : qsp_api_newVar('$ONGLOAD', 0),
+                            '$ONGSAVE' : qsp_api_newVar('$ONGSAVE', 0),
+                            '$ONOBJADD' : qsp_api_newVar('$ONOBJADD', 0),
+                            '$ONOBJDEL' : qsp_api_newVar('$ONOBJDEL', 0),
+                            '$ONOBJSEL' : qsp_api_newVar('$ONOBJSEL', 0),
+                            '$ONNEWLOC' : qsp_api_newVar('$ONNEWLOC', 0),
+                            '$ONACTSEL' : qsp_api_newVar('$ONACTSEL', 0),
+                            '$COUNTER' : qsp_api_newVar('$COUNTER', 0),
+                            '$USERCOM' : qsp_api_newVar('$USERCOM', 0)
+                          };
 qsp_Games['game']['0'] = async function (qsp_lib_args) {
     qsp_Globals['USEHTML'][0] = -1;
     qsp_Globals['$ONOBJSEL'][0] = 'onobjsel';
+    qsp_lib_mainPl('<h1>Художница</h1>');
     qsp_lib_mainPl('История про одну простую девушку, скажем, Марью, которая однажды взглянула на мир по-другому и пыталась к этому привыкнуть.');
     qsp_lib_mainPl('');
     qsp_lib_mainPl('');
@@ -1095,14 +1097,14 @@ qsp_Games['game']['0'] = async function (qsp_lib_args) {
     qsp_api_addAct('Начать', '', async function (qsp_lib_args) {
         qsp_api_clearAct();
         qsp_lib_mainClear();
-        qsp_lib_goto('начало начал', null);
+        qsp_lib_goto('начало начал');
         __PS_MV_REG = [];
         return;
     });
     qsp_api_addAct('История изменений', '', async function (qsp_lib_args) {
         qsp_api_clearAct();
         qsp_lib_mainClear();
-        qsp_lib_goto('changelog', null);
+        qsp_lib_goto('changelog');
         __PS_MV_REG = [];
         return;
     });
@@ -1118,7 +1120,7 @@ qsp_Games['game']['CHANGELOG'] = async function (qsp_lib_args) {
     qsp_api_addAct('Назад', '', async function (qsp_lib_args) {
         qsp_api_clearAct();
         qsp_lib_mainClear();
-        qsp_lib_goto('0', null);
+        qsp_lib_goto('0');
         __PS_MV_REG = [];
         return;
     });
@@ -1150,7 +1152,7 @@ qsp_Games['game']['КОНЕЦ ДЕМОВЕРСИИ'] = async function (qsp_lib_a
     qsp_api_addAct('Можно, кстати, сразиться за карандаши, так, забавы ради', '', async function (qsp_lib_args) {
         qsp_api_clearAct();
         qsp_lib_mainClear();
-        qsp_lib_goto('битва за карандаши', null);
+        qsp_lib_goto('битва за карандаши');
         __PS_MV_REG = [];
         return;
     });
@@ -1160,7 +1162,7 @@ qsp_Games['game']['НАЧАЛО НАЧАЛ'] = async function (qsp_lib_args) {
     qsp_api_addAct('...', '', async function (qsp_lib_args) {
         qsp_api_clearAct();
         qsp_lib_mainClear();
-        qsp_lib_goto('loc1', null);
+        qsp_lib_goto('loc1');
         __PS_MV_REG = [];
         return;
     });
@@ -1170,7 +1172,7 @@ qsp_Games['game']['LOC1'] = async function (qsp_lib_args) {
     qsp_api_addAct('...', '', async function (qsp_lib_args) {
         qsp_api_clearAct();
         qsp_lib_mainClear();
-        qsp_lib_goto('loc2', null);
+        qsp_lib_goto('loc2');
         __PS_MV_REG = [];
         return;
     });
@@ -1182,7 +1184,7 @@ qsp_Games['game']['LOC2'] = async function (qsp_lib_args) {
     qsp_api_addAct('...', '', async function (qsp_lib_args) {
         qsp_api_clearAct();
         qsp_lib_mainClear();
-        qsp_lib_goto('loc3', null);
+        qsp_lib_goto('loc3');
         __PS_MV_REG = [];
         return;
     });
@@ -1193,7 +1195,7 @@ qsp_Games['game']['LOC3'] = async function (qsp_lib_args) {
     qsp_api_addAct('...', '', async function (qsp_lib_args) {
         qsp_api_clearAct();
         qsp_lib_mainClear();
-        qsp_lib_goto('loc4', null);
+        qsp_lib_goto('loc4');
         __PS_MV_REG = [];
         return;
     });
@@ -1206,7 +1208,7 @@ qsp_Games['game']['LOC4'] = async function (qsp_lib_args) {
     qsp_api_addAct('...', '', async function (qsp_lib_args) {
         qsp_api_clearAct();
         qsp_lib_mainClear();
-        qsp_lib_goto('время действовать', null);
+        qsp_lib_goto('время действовать');
         __PS_MV_REG = [];
         return;
     });
@@ -1218,7 +1220,7 @@ qsp_Games['game']['ВРЕМЯ ДЕЙСТВОВАТЬ'] = async function (qsp_lib
     qsp_api_addAct('В лес за грибами', '', async function (qsp_lib_args) {
         qsp_api_clearAct();
         qsp_lib_mainClear();
-        qsp_lib_goto('за грибами', null);
+        qsp_lib_goto('за грибами');
         __PS_MV_REG = [];
         return;
     });
@@ -1228,7 +1230,7 @@ qsp_Games['game']['НАГОНЯЙ'] = async function (qsp_lib_args) {
     qsp_api_addAct('...', '', async function (qsp_lib_args) {
         qsp_api_clearAct();
         qsp_lib_mainClear();
-        qsp_lib_goto('дом', null);
+        qsp_lib_goto('дом');
         __PS_MV_REG = [];
         return;
     });
@@ -1238,7 +1240,7 @@ qsp_Games['game']['ДОМ'] = async function (qsp_lib_args) {
     qsp_api_addAct('...', '', async function (qsp_lib_args) {
         qsp_api_clearAct();
         qsp_lib_mainClear();
-        qsp_lib_goto('время действовать', null);
+        qsp_lib_goto('время действовать');
         __PS_MV_REG = [];
         return;
     });
@@ -1248,7 +1250,7 @@ qsp_Games['game']['ДОМ'] = async function (qsp_lib_args) {
         qsp_api_addAct('конец демоверсии', '', async function (qsp_lib_args) {
             qsp_api_clearAct();
             qsp_lib_mainClear();
-            qsp_lib_goto('конец демоверсии', null);
+            qsp_lib_goto('конец демоверсии');
             __PS_MV_REG = [];
             return;
         });
@@ -1266,9 +1268,9 @@ qsp_Games['game']['GETOBJBYKEY'] = async function (qsp_lib_args) {
     qsp_lib__labels['_nil'] = async function () {
         qsp_Globals['$NEEDLE'][0] = qsp_Globals['$ARGS'][0];
         qsp_Globals['I'][0] = 1;
-        return 'LOOP';
+        return 'LAB';
     };
-    qsp_lib__labels['LOOP'] = async function () {
+    qsp_lib__labels['LAB'] = async function () {
         while (true) {
             if (qsp_Globals['I'][0] <= qsp_Objs.length) {
                 if ((qsp_Objs[qsp_Globals['I'][0]] || '') === qsp_Globals['$NEEDLE'][0]) {
@@ -1295,7 +1297,7 @@ qsp_Games['game']['ДРЕВНИЕ РУИНЫ'] = async function (qsp_lib_args) {
         qsp_api_addAct('Домой', '', async function (qsp_lib_args) {
             qsp_api_clearAct();
             qsp_lib_mainClear();
-            qsp_lib_goto('дом', null);
+            qsp_lib_goto('дом');
             __PS_MV_REG = [];
             return;
         });
@@ -1308,7 +1310,7 @@ qsp_Games['game']['ДРЕВНИЕ РУИНЫ'] = async function (qsp_lib_args) {
             qsp_api_addAct('...', '', async function (qsp_lib_args) {
                 qsp_api_clearAct();
                 qsp_lib_mainClear();
-                qsp_lib_goto('нагоняй', null);
+                qsp_lib_goto('нагоняй');
                 __PS_MV_REG = [];
                 return;
             });
@@ -1316,7 +1318,7 @@ qsp_Games['game']['ДРЕВНИЕ РУИНЫ'] = async function (qsp_lib_args) {
         qsp_api_addAct('Собрать грибы и отправиться домой', '', async function (qsp_lib_args) {
             qsp_api_clearAct();
             qsp_lib_mainClear();
-            qsp_lib_goto('дом', null);
+            qsp_lib_goto('дом');
             __PS_MV_REG = [];
             return;
         });
@@ -1338,7 +1340,7 @@ qsp_Games['game']['ЗА ГРИБАМИ'] = async function (qsp_lib_args) {
             qsp_api_addAct('Домой', '', async function (qsp_lib_args) {
                 qsp_api_clearAct();
                 qsp_lib_mainClear();
-                qsp_lib_goto('нагоняй', null);
+                qsp_lib_goto('нагоняй');
                 __PS_MV_REG = [];
                 return;
             });
@@ -1348,7 +1350,7 @@ qsp_Games['game']['ЗА ГРИБАМИ'] = async function (qsp_lib_args) {
         qsp_api_clearAct();
         qsp_lib_mainClear();
         if (qsp_Globals['ANCIENT'][0] === 1) {
-            qsp_lib_goto('древние руины', null);
+            qsp_lib_goto('древние руины');
             __PS_MV_REG = [];
             return;
         } else {
@@ -1359,7 +1361,7 @@ qsp_Games['game']['ЗА ГРИБАМИ'] = async function (qsp_lib_args) {
         qsp_api_addAct('Домой', '', async function (qsp_lib_args) {
             qsp_api_clearAct();
             qsp_lib_mainClear();
-            qsp_lib_goto('дом', null);
+            qsp_lib_goto('дом');
             __PS_MV_REG = [];
             return;
         });
@@ -1372,7 +1374,7 @@ qsp_Games['game']['ЗА ГРИБАМИ'] = async function (qsp_lib_args) {
             qsp_api_addAct('...', '', async function (qsp_lib_args) {
                 qsp_api_clearAct();
                 qsp_lib_mainClear();
-                qsp_lib_goto('за грибами', null);
+                qsp_lib_goto('за грибами');
                 __PS_MV_REG = [];
                 return;
             });
@@ -1384,7 +1386,7 @@ qsp_Games['game']['НАЧАЛО'] = async function (qsp_lib_args) {
     qsp_lib_mainPl('Она настолько прониклась этой мыслью, что стала браться за любую работу, лишь бы скопить денег да купить достойные кисти: чтобы непременно были из загадочной заграницы и руки сами выводили картины. Грезы помогали ей справляться с тяжелой работой.');
     qsp_lib_mainPl('Однажды в деревню пожаловал купец со своим скарбом, {?}');
     qsp_api_addAct('...', '', async function (qsp_lib_args) {
-        qsp_lib_goto('чужестранец', null);
+        qsp_lib_goto('чужестранец');
         __PS_MV_REG = [];
         return;
     });
@@ -1402,7 +1404,7 @@ qsp_Games['game']['ЧУЖЕСТРАНЕЦ'] = async function (qsp_lib_args) {
     qsp_lib_mainPl('Увлеклась настолько, что сон напрочь сморил, и она уснула прямо за столом');
     qsp_lib_mainPl('пока однажды не прознала про легендарные карандаши в далеких землях. Само собой, она тотчас бросилась их искать.');
     qsp_api_addAct('...', '', async function (qsp_lib_args) {
-        qsp_lib_goto('путешествие', null);
+        qsp_lib_goto('путешествие');
         __PS_MV_REG = [];
         return;
     });
@@ -1410,7 +1412,7 @@ qsp_Games['game']['ЧУЖЕСТРАНЕЦ'] = async function (qsp_lib_args) {
 qsp_Games['game']['ПУТЕШЕСТВИЕ'] = async function (qsp_lib_args) {
     qsp_lib_mainPl('Она продиралась сквозь зимнюю стужу, томилась под палящим солнцем пустыни, обретала друзей, теряла соратников, попадала в таинственные переплеты, пока наконец не достигла древнего места, где согласно легендам хранились легендарные карандаши.');
     qsp_api_addAct('...', '', async function (qsp_lib_args) {
-        qsp_lib_goto('владелец реликвии', null);
+        qsp_lib_goto('владелец реликвии');
         __PS_MV_REG = [];
         return;
     });
@@ -1418,7 +1420,7 @@ qsp_Games['game']['ПУТЕШЕСТВИЕ'] = async function (qsp_lib_args) {
 qsp_Games['game']['ВЛАДЕЛЕЦ РЕЛИКВИИ'] = async function (qsp_lib_args) {
     qsp_lib_mainPl('— Ах, дом, милый дом');
     qsp_api_addAct('...', '', async function (qsp_lib_args) {
-        qsp_lib_goto('битва за карандаши', null);
+        qsp_lib_goto('битва за карандаши');
         __PS_MV_REG = [];
         return;
     });
@@ -1426,7 +1428,7 @@ qsp_Games['game']['ВЛАДЕЛЕЦ РЕЛИКВИИ'] = async function (qsp_lib
 qsp_Games['game']['БИТВА ЗА КАРАНДАШИ'] = async function (qsp_lib_args) {
     qsp_lib_mainPl('Оставалось лишь руку протянуть до вожделенного плода, как перед ней возникло древнее зло и схватило карандаши. Битва продолжалась до самого заката, и наконец она смогла вырвать из его мертвых рук карандаши.');
     qsp_api_addAct('...', '', async function (qsp_lib_args) {
-        qsp_lib_goto('нелегкий выбор', null);
+        qsp_lib_goto('нелегкий выбор');
         __PS_MV_REG = [];
         return;
     });
@@ -1434,7 +1436,7 @@ qsp_Games['game']['БИТВА ЗА КАРАНДАШИ'] = async function (qsp_li
 qsp_Games['game']['НЕЛЕГКИЙ ВЫБОР'] = async function (qsp_lib_args) {
     qsp_lib_mainPl('Руки тряслись, сердце бешено колотилось после смертельного боя, но она все же нашла в себе силы: достала холст и изобразила арбуз в мягких тонах.');
     qsp_api_addAct('...', '', async function (qsp_lib_args) {
-        qsp_lib_goto('эпилог', null);
+        qsp_lib_goto('эпилог');
         __PS_MV_REG = [];
         return;
     });
