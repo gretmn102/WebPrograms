@@ -1,0 +1,164 @@
+
+.qsp-frame {
+    border: 1px solid black;
+    overflow: auto;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+#qsp {
+    position: absolute;
+    display: flex;
+    flex-flow: row;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.qsp-col {
+    display: flex;
+    flex-flow: column;
+}
+
+.qsp-col1 {
+    flex: 7 7 70px;
+}
+
+.qsp-col2 {
+    flex: 3 3 30px;
+}
+
+.qsp-col3 {
+    flex: 0 0 40px;
+}
+
+#qsp-main {
+    flex: 6 6 60px;
+    background-repeat: no-repeat;
+    background-position: right top;
+    background-attachment: fixed;
+}
+
+#qsp-acts {
+    flex: 4 4 40px;
+}
+
+#qsp-input {
+}
+
+#qsp-stat {
+    flex: 5 5 50px;
+}
+
+#qsp-objs span {
+    display: inline-flex;
+    align-items: center;
+}
+#qsp-objs {
+    flex: 5 5 50px;
+    /* display: table; */
+}
+/* #qsp-objs li {
+    display: table-row;
+} */
+
+#qsp-objs img {
+    width: 50px;
+    margin-right: 4px;
+}
+
+li.qsp-obj {
+    align-items: center;
+    list-style-type: none;
+    margin: 4px;
+    padding: 3px;
+    cursor: pointer;
+    line-height: 20px;
+    display: flex;
+}
+
+li.qsp-obj:hover {
+    border: outset 3px;
+    padding: 0px;
+}
+
+.qsp-act {
+    display: block;
+    padding: 2px;
+    font-size: large;
+}
+
+.qsp-act:hover {
+    outline: #9E9E9E outset 3px
+}
+
+/* Dropdown */
+
+#qsp-dropdown {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  overflow: auto;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  margin: auto;
+}
+
+#qsp-dropdown a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+#qsp-dropdown a:hover {
+    background-color: #ddd;
+}
+
+/* Buttons */
+
+.qsp-col3 a, .qsp-col3 img {
+    width: 50px;
+    height: 50px;
+}
+
+#qsp-btn-save img {
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAABmJLR0QA/wD/AP+gvaeTAAACSklEQVRoge3ZPWgUQRjG8V/iRRFU/GoEQdSohSgWWqQSooVgK9iJFiKCnYV2BkFQsBRBQQwWVsHKIoWxEOzEwmhhogbRMhhFicTvYm+JCUlmZzabRLN/OPaWeZ+ZeW7feXf2lpqampqamnRaImKP4hA2VjCP27hbpoNGwbib2IPreB+IPYY7M7SvxWYM4QNO4QqWyQxVRgdeYnnB+K5A+wUcbB7z+O14hxPx08toLRDTgfv4mjrIJFrwwMS0HsABXMTxlE6LpNYqfE7pPJIBdOKhLM1uxIiLrpG5YtC4GSLMVGGkLdD+GpfxAuvxaVL7oCzN+jCG7iKDVmHkKS5hSSBuJ3bg6hRt+Zrpa553z8bEuoQrUVXk1exwKLBI1ZpPBnAL+0KBqanVim1Ykaifji+yNfIrVphipB1n8BgjCfqZ2IrTuIZXMcIUIydxFj8TtEW4JysW52JEKWtkVHUm4EdzjChSrkgLlmJXghb6m8ep9MN4K25XjvTF3sCaElrT6McS+0w2Mirb+JWhrH4CC/0+UpjUK7Ia5/86f4IeHMHeEvPJ+4km1chHE43k9KROpCyLPrViym8/vjW/b5Jt3acjL7/RzEX5bRg3sjKg+2fK7/PmZ9aZzdTqxwYzp06IBZFaDeHUCbFgUquy1Anx35TfRWXkd+WzCBOcQxEjQ7JH0PmiHW9CQUWM9Mr+Y+osO6ME8nF7Q4FFn8T2y14VDMt2vsFfqCRbZBvTdbLXFI9CgphHyjbsVu4+EcMInuH7HI1XU1NTU7OI+QMFe2N82rtssgAAAABJRU5ErkJggg==');
+}
+
+#qsp-btn-open img {
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAABmJLR0QA/wD/AP+gvaeTAAACCklEQVRoge3Yz6sNYRzH8deVexNxSaEoroWFUuomOceSPVnIwsbSxs6Psrgphf9AsrZR7kJWsroUlrZKKZRSl4USGouZk9Npzp1n5pm5x4/nXdNzpvP9Pp/v95nv82OGRCKRSCQS/w8zuIn3yGpe37CEQ6sedQk38BA7G/jO4BQ+YEebQZUxVfH/OxzGVSxX2D4o2mO4jmt4jpNFe6d5mPFkRbvQ0H9h6OqUtR33/xXr0celGn4/sYjXoQ5dJ3ILB7AOW2r4bcIj7GsrkEFpXWyrwwbaf15nXWqv6SqK1abuHDmPjV0EMobhBWIZt8cZVu0j2ZDNHF7gblRozdiO49g1zqDOEzmKJ7gcGVQTzmLDSgZ1Eunh2dD9aewpsXtctH3cwzn5ALysoVWlXZvhleMV5ovfU8J363mciAliRLsRg0Q244vfT3A/zgT2cQHbImIY1S4ldPk9Ii+NH8V9H08DfbfiY6BtiHYpoYmMBr4bbwN9YzfVoEELnew9+blpwBv5u0oI9wPtQrUbkWFaXqOzsZ01IFg7pLQOyp/A58igmhCsHZJInYndNsHa/0wiVWTy9/a5NjprQGvag0Qmwd462iGltdQ8lihqlVVIIn/9/CAvrajDWgTRB8VhMt1/aSljVr4RToc6hJTWioe1jujJD4rfQx2qRvuTyX1JuTIh3UQikUgkEhPnF+1xZ9hHnLjAAAAAAElFTkSuQmCC');
+}
+
+.center-on-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.center-on-screen > * {
+    pointer-events: auto;
+}
+
+#qsp-image-container {
+    display: none;
+}
+
+/* misc */
+
+.disable a {
+  pointer-events: none;
+  cursor: default;
+}
+
+.qsp-objs li.qsp-obj-selected {
+    background-color: blue;
+}
