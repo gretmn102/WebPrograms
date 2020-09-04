@@ -68,7 +68,7 @@ let sandbox worldLength world viewportRadius  =
     // let viewportRadius = 3
 
     // let world = [|1..worldLength|]
-    let inline round x = round x |> int
+    let round x = round x |> int
     let ofScale' worldLength' i' =
         round <| ofScale worldLength worldLength' (float i')
     let toScale' worldLength' i =

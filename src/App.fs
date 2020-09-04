@@ -4,40 +4,20 @@ open Browser.Dom
 open Fable.Core
 open Fable.Core.JsInterop // needed to call interop tools
 
-type IMainLoop =
-    abstract getFPS: unit -> float
-    abstract getMaxAllowedFPS: unit -> int32
-    abstract getSimulationTimestep: unit -> int32
-    abstract isRunning: unit -> bool
-    abstract resetFrameDelta: unit -> float
-    /// `abstract setBegin(begin: (timestamp: number, delta: number) => void): MainLoop`
-    abstract setBegin: ``begin``:(float -> int32 -> unit) -> IMainLoop
-    /// `abstract setDraw(draw: (interpolationPercentage: number) => void): MainLoop`
-    abstract setDraw: draw:(float -> unit) -> IMainLoop
-    /// `abstract setUpdate(update: (delta: number) => void): MainLoop`
-    abstract setUpdate: update:(float -> unit) -> IMainLoop
-    /// `abstract setEnd(end: (fps: number, panic: boolean) => void): MainLoop`
-    abstract setEnd: ``end``: (float -> bool -> unit) -> IMainLoop
-    abstract setMaxAllowedFPS: ?fps: float -> IMainLoop
-    abstract setSimulationTimestep: timestep:int32 -> IMainLoop
-    abstract start: unit -> IMainLoop
-    abstract stop: unit -> IMainLoop
 
-[<ImportAll("mainloop.js")>]
-let mainloop: IMainLoop = jsNative
-
-let btnLeft = document.querySelector(".button-left") :?> Browser.Types.HTMLButtonElement
-let btnRight = document.querySelector(".button-right") :?> Browser.Types.HTMLButtonElement
-let myDisplay = document.querySelector(".my-display") :?> Browser.Types.HTMLElement
-let btnRegen = document.querySelector(".button-regen") :?> Browser.Types.HTMLButtonElement
-let canvas = document.querySelector(".my-canvas") :?> Browser.Types.HTMLCanvasElement
 let fpsCounter = document.querySelector(".fps-counter") :?> Browser.Types.HTMLElement
+let gameDiv = document.getElementById("game") :?> Browser.Types.HTMLDivElement
+let dispose () =
+    while gameDiv.hasChildNodes () do
+        gameDiv.removeChild gameDiv.firstChild |> ignore
 
 let fps = document.getElementById("fps") :?> Browser.Types.HTMLInputElement
 let fpsValue = document.getElementById("fpsvalue")
 fps.addEventListener("input", fun _ ->
     fpsValue.textContent <- fps.value
 )
+let mainloop = Mainloop.mainloop
+
 fps.addEventListener("change", fun _ ->
     let value =
         match fps.value with
@@ -47,7 +27,22 @@ fps.addEventListener("change", fun _ ->
     |> ignore
 )
 
+type T =
+    | NoOne
+    | Lissajous
+    | Duckhunting
+    | Roguelike
+    | PlasmaByCanvas
+    | PlasmaByTable
+let mutable current = NoOne
+
 let startPlasmaByCanvas () =
+    let width, height = 100, 200
+    let canvas = document.createElement "canvas" :?> Browser.Types.HTMLCanvasElement
+    canvas.width <- float width
+    canvas.height <- float height
+    gameDiv.appendChild canvas |> ignore
+
     let w, h = int canvas.width, int canvas.height
     let imgData = ImageData.Create(float w, float h)
     let canvasCtx = canvas.getContext_2d()
@@ -89,18 +84,39 @@ let startPlasmaByCanvas () =
     ) |> ignore
 
     mainloop.setEnd (fun fps panic ->
-        // System.Single.
         fpsCounter.textContent <- sprintf "%A FPS" (round fps)
         if panic then
             let discardedTime = round(mainloop.resetFrameDelta())
             printfn "Main loop panicked, probably because the browser tab was put in the background. Discarding %A ms" discardedTime
     ) |> ignore
     mainloop.start () |> ignore
-// startPlasmaByCanvas () |> ignore
-do
+
+document.getElementById("plasmabycanvas") :?> Browser.Types.HTMLHRElement
+|> fun node ->
+    node.onclick <- fun _ ->
+        if current <> PlasmaByCanvas then
+            mainloop.stop() |> ignore
+            dispose ()
+
+            startPlasmaByCanvas ()
+            current <- PlasmaByCanvas
+
+document.getElementById("lissajous") :?> Browser.Types.HTMLHRElement
+|> fun node ->
+    node.onclick <- fun _ ->
+        if current <> Lissajous then
+            mainloop.stop() |> ignore
+            dispose ()
+
+            Lissajous.lissajousStart document gameDiv mainloop fpsCounter
+            |> ignore
+            current <- Lissajous
+
+let startDuck () =
     let duckSprite = document.getElementById("duck") :?> Browser.Types.HTMLImageElement
     let foxSprite = document.getElementById("fox") :?> Browser.Types.HTMLImageElement
-    let x = FoxEscape.start duckSprite foxSprite canvas
+
+    let x = FoxEscape.start duckSprite foxSprite document gameDiv
     mainloop.setUpdate (fun _ -> x.Update ()) |> ignore
     mainloop.setDraw (fun _ -> x.Draw ()) |> ignore
     mainloop.setEnd (fun fps panic ->
@@ -112,29 +128,71 @@ do
     ) |> ignore
     mainloop.start () |> ignore
 
+document.getElementById("duckhunting") :?> Browser.Types.HTMLHRElement
+|> fun node ->
+    node.onclick <- fun _ ->
+        if current <> Duckhunting then
+            mainloop.stop() |> ignore
+            dispose ()
+
+            startDuck ()
+            current <- Duckhunting
+
 let startPlasmaByTable () =
-    let w, h = 20, 20
+    let w, h = 10, 10
     let grid =
-        TableCanvas.createGrid w h myDisplay
+        TableCanvas.createGrid w h gameDiv
     TableCanvas.fill grid
 
     let mutable plasma = Plasma.createPlasma w h
     let mutable hueShift = 0.
-    let rec update () =
-        window.requestAnimationFrame(fun i ->
-            hueShift <- (hueShift + 0.02) % 1.
-            let plasma' = Plasma.repaint hueShift plasma
-            plasma <- plasma'
-            TableCanvas.draw plasma' grid
 
-            update ()
-        )
-        |> ignore
-    update ()
+    mainloop.setUpdate (fun _ ->
+        hueShift <- (hueShift + 0.02) % 5.
+        // let plasma' = Plasma.repaint hueShift plasma
+        Plasma.repaint' hueShift plasma
+        // plasma <- plasma'
+    ) |> ignore
+    mainloop.setDraw (fun _ -> TableCanvas.draw plasma grid) |> ignore
+    mainloop.setEnd (fun fps panic ->
+        fpsCounter.textContent <- sprintf "%A FPS" (round fps)
+        if panic then
+            let discardedTime = round(mainloop.resetFrameDelta())
+            printfn "Main loop panicked, probably because the browser tab was put in the background. Discarding %A ms" discardedTime
+    ) |> ignore
+    mainloop.start () |> ignore
 
-// startPlasmaByTable ()
+document.getElementById("plasmabytable") :?> Browser.Types.HTMLHRElement
+|> fun node ->
+    node.onclick <- fun _ ->
+        if current <> PlasmaByTable then
+            mainloop.stop() |> ignore
+            dispose ()
+
+            startPlasmaByTable()
+
+            current <- PlasmaByTable
 
 let game () =
+    let myDisplay = document.createElement "p" :?> Browser.Types.HTMLParagraphElement
+    myDisplay.setAttribute("style", "font-family: Consolas,monaco,monospace;")
+    gameDiv.appendChild myDisplay |> ignore
+
+    let table = document.createElement "table" :?> Browser.Types.HTMLTableElement
+    gameDiv.appendChild table |> ignore
+
+    let row = table.insertRow()
+
+    let cell = row.insertCell()
+    let btnLeft = document.createElement "button" :?> Browser.Types.HTMLButtonElement
+    btnLeft.innerText <- "⬅️"
+    cell.appendChild btnLeft |> ignore
+
+    let cell = row.insertCell()
+    let btnRight = document.createElement "button" :?> Browser.Types.HTMLButtonElement
+    btnRight.innerText <- "➡️"
+    cell.appendChild btnRight |> ignore
+
     let worldLength = 15
     let world =
         Array.init worldLength (fun i ->
@@ -180,4 +238,13 @@ let game () =
         |}
     btnLeft.onclick <- res.Left
     btnRight.onclick <- res.Right
-game ()
+
+document.getElementById("roguelike") :?> Browser.Types.HTMLHRElement
+|> fun node ->
+    node.onclick <- fun _ ->
+        if current <> Roguelike then
+            mainloop.stop() |> ignore
+            dispose ()
+
+            game ()
+            current <- Roguelike

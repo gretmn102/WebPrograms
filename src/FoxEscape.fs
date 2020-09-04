@@ -173,10 +173,16 @@ let moveBoat (x, y) =
         boaty <- boaty + bspeed * speed_mult * dy/mag
 
 
-let start duckSprite foxSprite (canvas:HTMLCanvasElement) =
+let start duckSprite foxSprite (document:Document) (targetNode:HTMLDivElement) =
+    let canvas = document.createElement "canvas" :?> Browser.Types.HTMLCanvasElement
+    canvas.width <- float width
+    canvas.height <- float height
+    targetNode.appendChild canvas |> ignore
+
     let ctx = canvas.getContext_2d()
     let mutable mouseX, mouseY = 0., 0.
     let mutable isMouseButtonDown = false
+    // TODO: canvas.ontouchmove
     canvas.onmousemove <- fun e ->
         mouseX <- e.offsetX; mouseY <- e.offsetY
 

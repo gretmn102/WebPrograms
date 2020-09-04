@@ -1,23 +1,24 @@
 <!doctype html>
 <html>
 <head>
-  <title>Fable</title>
-  <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="shortcut icon" href="fable.ico" />
+    <title>Fable</title>
+    <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="fable.ico" />
 </head>
 <body>
-    <img id="fox" src="https://cdn0.iconfinder.com/data/icons/kids-paint/512/fox-512.png" style="visibility: hidden; display: none;">
-    <img id="duck" src="https://cdn1.iconfinder.com/data/icons/birthday-18/52/59-512.png" style="visibility: hidden; display: none;">
-    <canvas class="my-canvas" width="800" height="650" style="border:1px solid #000000;">Your browser does not support the HTML5 canvas tag.</canvas>
-    <p class="my-display" style="font-family: Consolas,monaco,monospace;"></p> 
-    <table>
-        <tr>
-            <td><button class="button-left">⬅️</button></td>
-            <td><button class="button-right">➡️</button></td>
-            <td><button class="button-regen">regen</button></td>
-        </tr>
-    </table>
+    <ol>
+        <li><a href="javascript:void(0)" id="lissajous">Lissajous</a></li>
+        <li><a href="javascript:void(0)" id="duckhunting">Duckhunting</a></li>
+        <li><a href="javascript:void(0)" id="roguelike">Зачатки рогалика</a></li>
+        <li><a href="javascript:void(0)" id="plasmabycanvas">Плазма через canvas</a></li>
+        <li><a href="javascript:void(0)" id="plasmabytable">Плазма через table</a></li>
+    </ol>
+    <div id="game"></div>
+    <img id="fox" src="https://cdn0.iconfinder.com/data/icons/kids-paint/512/fox-512.png"
+        style="visibility: hidden; display: none;">
+    <img id="duck" src="https://cdn1.iconfinder.com/data/icons/birthday-18/52/59-512.png"
+        style="visibility: hidden; display: none;">
     <div class="fps-counter">0 FPS</div>
     <div id="fpspicker">
         <label for="fps">Maximum FPS:</label>
