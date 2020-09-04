@@ -34,6 +34,7 @@ type T =
     | Roguelike
     | PlasmaByCanvas
     | PlasmaByTable
+let mutable currentNode : Browser.Types.HTMLElement = null
 let mutable current = NoOne
 
 let startPlasmaByCanvas () =
@@ -99,6 +100,10 @@ document.getElementById("plasmabycanvas") :?> Browser.Types.HTMLHRElement
             dispose ()
 
             startPlasmaByCanvas ()
+            if not <| isNull currentNode then
+                currentNode.removeAttribute "class"
+            node.setAttribute("class", "active")
+            currentNode <- node
             current <- PlasmaByCanvas
 
 document.getElementById("lissajous") :?> Browser.Types.HTMLHRElement
@@ -110,6 +115,11 @@ document.getElementById("lissajous") :?> Browser.Types.HTMLHRElement
 
             Lissajous.lissajousStart document gameDiv mainloop fpsCounter
             |> ignore
+
+            if not <| isNull currentNode then
+                currentNode.removeAttribute "class"
+            node.setAttribute("class", "active")
+            currentNode <- node
             current <- Lissajous
 
 let startDuck () =
@@ -136,6 +146,11 @@ document.getElementById("duckhunting") :?> Browser.Types.HTMLHRElement
             dispose ()
 
             startDuck ()
+
+            if not <| isNull currentNode then
+                currentNode.removeAttribute "class"
+            node.setAttribute("class", "active")
+            currentNode <- node
             current <- Duckhunting
 
 let startPlasmaByTable () =
@@ -171,6 +186,10 @@ document.getElementById("plasmabytable") :?> Browser.Types.HTMLHRElement
 
             startPlasmaByTable()
 
+            if not <| isNull currentNode then
+                currentNode.removeAttribute "class"
+            node.setAttribute("class", "active")
+            currentNode <- node
             current <- PlasmaByTable
 
 let game () =
@@ -247,4 +266,9 @@ document.getElementById("roguelike") :?> Browser.Types.HTMLHRElement
             dispose ()
 
             game ()
+
+            if not <| isNull currentNode then
+                currentNode.removeAttribute "class"
+            node.setAttribute("class", "active")
+            currentNode <- node
             current <- Roguelike
