@@ -122,37 +122,6 @@ document.getElementById("lissajous") :?> Browser.Types.HTMLHRElement
             currentNode <- node
             current <- Lissajous
 
-let startDuck () =
-    let duckSprite = document.getElementById("duck") :?> Browser.Types.HTMLImageElement
-    let foxSprite = document.getElementById("fox") :?> Browser.Types.HTMLImageElement
-
-    let x = FoxEscape.start duckSprite foxSprite document gameDiv
-    mainloop.setUpdate (fun _ -> x.Update ()) |> ignore
-    mainloop.setDraw (fun _ -> x.Draw ()) |> ignore
-    mainloop.setEnd (fun fps panic ->
-        // System.Single.
-        fpsCounter.textContent <- sprintf "%A FPS" (round fps)
-        if panic then
-            let discardedTime = round(mainloop.resetFrameDelta())
-            printfn "Main loop panicked, probably because the browser tab was put in the background. Discarding %A ms" discardedTime
-    ) |> ignore
-    mainloop.start () |> ignore
-
-document.getElementById("duckhunting") :?> Browser.Types.HTMLHRElement
-|> fun node ->
-    node.onclick <- fun _ ->
-        if current <> Duckhunting then
-            mainloop.stop() |> ignore
-            dispose ()
-
-            startDuck ()
-
-            if not <| isNull currentNode then
-                currentNode.removeAttribute "class"
-            node.setAttribute("class", "active")
-            currentNode <- node
-            current <- Duckhunting
-
 let startPlasmaByTable () =
     let w, h = 10, 10
     let grid =

@@ -4,7 +4,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Mainloop.fs" />
-    <Compile Include="FoxEscape.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="Plasma.fs" />
     <Compile Include="MapEngine.fs" />
