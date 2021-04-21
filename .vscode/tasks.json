@@ -3,6 +3,13 @@
 	"tasks": [
 		{
 			"type": "npm",
+			"script": "start",
+			"problemMatcher": [],
+			"label": "npm: start",
+			"detail": "webpack serve"
+		},
+		{
+			"type": "npm",
 			"script": "build",
 			"group": "build",
 			"problemMatcher": [],
