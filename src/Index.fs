@@ -107,22 +107,6 @@ module Index
 //             currentNode <- node
 //             current <- PlasmaByCanvas
 
-// document.getElementById("lissajous") :?> Browser.Types.HTMLHRElement
-// |> fun node ->
-//     node.onclick <- fun _ ->
-//         if current <> Lissajous then
-//             mainloop.stop() |> ignore
-//             dispose ()
-
-//             Lissajous.lissajousStart document gameDiv mainloop fpsCounter
-//             |> ignore
-
-//             if not <| isNull currentNode then
-//                 currentNode.removeAttribute "class"
-//             node.setAttribute("class", "active")
-//             currentNode <- node
-//             current <- Lissajous
-
 // let startPlasmaByTable () =
 //     let w, h = 10, 10
 //     let grid =
@@ -249,70 +233,107 @@ open Elmish
 open Feliz
 open Browser
 
+type Page =
+    | LissajousPage
+    | OtherPage
+
 type State =
     {
-        Counter: int
+        LissajousState: Lissajous.State
+        CurrentPage: Page
     }
+
 type Msg =
-    | Incr
-    | Decr
+    | LissajousCmd of Lissajous.Msg
+    | ChangePage of Page
+    | ChangeUrl of segments:string list
+
+let changePage state = function
+    | LissajousPage ->
+        let lissajousState, cmd = Lissajous.init ()
+        let state =
+            { state with
+                LissajousState = lissajousState
+                CurrentPage = LissajousPage }
+        state, cmd
+    | OtherPage ->
+        let state =
+            { state with
+                // LissajousState = lissajousState
+                CurrentPage = OtherPage }
+        state, Cmd.none
+
+open Feliz.Router
+
+[<Literal>]
+let LissajousRoute = "lissajous"
+[<Literal>]
+let OtherRoute = "otherPage"
+
+let parseUrl state segments =
+    match segments with
+    | LissajousRoute::_ ->
+        changePage state LissajousPage
+    | OtherRoute::_ ->
+        changePage state OtherPage
+    | _ ->
+        state, Cmd.none
+
+let update (msg: Msg) (state: State) =
+    match msg with
+    | ChangePage page -> changePage state page
+    | LissajousCmd msg ->
+        let lissajousState, cmd =
+            Lissajous.update msg state.LissajousState
+        let state =
+            { state with
+                LissajousState = lissajousState }
+        state, cmd
+    | ChangeUrl segments ->
+        parseUrl state segments
 
 let init () =
     let state =
         {
-            Counter = 0
+            LissajousState = Lissajous.initState
+            CurrentPage = LissajousPage
         }
-    state, Cmd.none
-
-let update (msg: Msg) (state: State) =
-    match msg with
-    | Incr ->
-        let state =
-            { state with
-                Counter = state.Counter + 1 }
-        state, Cmd.none
-    | Decr ->
-        let state =
-            { state with
-                Counter = state.Counter - 1 }
-        state, Cmd.none
+    Router.currentUrl()
+    |> parseUrl state
 
 open Fable.React
 open Fable.React.Props
 open Fulma
 open Fable.FontAwesome
 
-let containerBox (state : State) (dispatch : Msg -> unit) =
-    Box.box' [] [
-        Button.button [
-            Button.OnClick (fun e ->
-                Decr
-                |> dispatch
-            )
-        ] [
-            Fa.i [ Fa.Solid.Minus ] []
-        ]
-        str (sprintf "%d" state.Counter)
-        Button.button [
-            Button.OnClick (fun e ->
-                Incr
-                |> dispatch
-            )
-        ] [
-            Fa.i [ Fa.Solid.Plus ] []
-        ]
-    ]
 
-let navBrand =
+let navBrand (state : State) (dispatch : Msg -> unit) =
     Navbar.Brand.div [] [
         Navbar.Item.a [
-            Navbar.Item.Props [ Href "https://safe-stack.github.io/" ]
-            Navbar.Item.IsActive true
-        ] [
-            img [
-                Src "/fable.ico"
-                Alt "Logo"
+            Navbar.Item.Props [
+                Href "https://gretmn102.github.io/"
+                Target "_blank"
             ]
+        ] [
+            Fa.i [ Fa.Solid.Home ] []
+        ]
+
+        Navbar.Item.a [
+            let isActive = state.CurrentPage = LissajousPage
+            Navbar.Item.IsActive isActive
+            // if not isActive then
+            Navbar.Item.Props [ Href (Router.format LissajousRoute) ]
+        ] [
+            // Fa.i [ Fa.Solid.FileAlt ] []
+            str "Lissajous"
+        ]
+
+        Navbar.Item.a [
+            let isActive = state.CurrentPage = OtherPage
+            Navbar.Item.IsActive isActive
+            Navbar.Item.Props [ Href (Router.format OtherRoute) ]
+        ] [
+            str "OtherPage"
         ]
     ]
 
@@ -323,16 +344,25 @@ let view (state : State) (dispatch : Msg -> unit) =
         Hero.head [] [
             Navbar.navbar [] [
                 Container.container [] [
-                    navBrand
+                    navBrand state dispatch
                 ]
             ]
         ]
 
         Hero.body [] [
-            Container.container [] [
-                Column.column [
-                ] [
-                    containerBox state dispatch
+            Feliz.React.router [
+                router.onUrlChanged (ChangeUrl >> dispatch)
+                router.children [
+                    Container.container [] [
+                        Column.column [
+                        ] [
+                            match state.CurrentPage with
+                            | LissajousPage ->
+                                Lissajous.containerBox state.LissajousState (LissajousCmd >> dispatch)
+                            | OtherPage ->
+                                str "Content of other page"
+                        ]
+                    ]
                 ]
             ]
         ]

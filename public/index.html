@@ -5,7 +5,13 @@
     <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="shortcut icon" href="fable.ico" />
-    <style>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.1/css/bulma.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/bulma-prefers-dark" />
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bulma-checkradio@1.1.1/dist/css/bulma-checkradio.min.css" />
+
+    <style type="text/css">
         body {
           margin: 0;
           font-family: Arial, Helvetica, sans-serif;
@@ -37,23 +43,7 @@
     </style>
 </head>
 <body>
-    <div class="topnav">
-        <a href="javascript:void(0)" id="lissajous">Lissajous</a>
-        <a href="javascript:void(0)" id="roguelike">Зачатки рогалика</a>
-        <a href="javascript:void(0)" id="plasmabycanvas">Плазма через canvas</a>
-        <a href="javascript:void(0)" id="plasmabytable">Плазма через table</a>
-    </div>
-    <div id="game"></div>
-    <img id="fox" src="https://cdn0.iconfinder.com/data/icons/kids-paint/512/fox-512.png"
-        style="visibility: hidden; display: none;">
-    <img id="duck" src="https://cdn1.iconfinder.com/data/icons/birthday-18/52/59-512.png"
-        style="visibility: hidden; display: none;">
-    <div class="fps-counter">0 FPS</div>
-    <div id="fpspicker">
-        <label for="fps">Maximum FPS:</label>
-        <input type="range" id="fps" min=1 max=60 step=1 value=60>
-        <span id="fpsvalue">60</span>
-    </div>
-    <script src="bundle.js"></script>
+  <div id="elmish-app"></div>
+  <script src="bundle.js"></script>
 </body>
 </html>

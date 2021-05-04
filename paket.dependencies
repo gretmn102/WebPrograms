@@ -13,6 +13,7 @@ nuget Fable.Browser.Dom
 nuget Fable.React
 nuget Fable.SimpleHttp
 nuget Feliz
+nuget Feliz.Router
 nuget Fulma
 nuget Fulma.Extensions.Wikiki.Checkradio
 nuget Thoth.Json

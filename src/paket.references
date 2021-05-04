@@ -6,6 +6,7 @@ Thoth.Json
 Fable.Elmish
 Fable.React
 Feliz
+Feliz.Router
 Fable.Elmish.React
 Fable.Elmish.HMR
 Fable.SimpleHttp
