@@ -235,54 +235,59 @@ open Browser
 
 type Page =
     | LissajousPage
-    | OtherPage
+    | BullsAndCowsPage
 
 type State =
     {
         LissajousState: Lissajous.State
+        BullsAndCowsState: BullsAndCows.State
         CurrentPage: Page
     }
 
 type Msg =
-    | LissajousCmd of Lissajous.Msg
+    | LissajousMsg of Lissajous.Msg
+    | BullsAndCowsMsg of BullsAndCows.Msg
     | ChangePage of Page
     | ChangeUrl of segments:string list
 
-let changePage state = function
+let changePage state =
+    Mainloop.mainloop.stop() |> ignore
+    function
     | LissajousPage ->
-        let lissajousState, cmd = Lissajous.init ()
+        let pageState, cmd = Lissajous.init ()
         let state =
             { state with
-                LissajousState = lissajousState
+                LissajousState = pageState
                 CurrentPage = LissajousPage }
         state, cmd
-    | OtherPage ->
+    | BullsAndCowsPage ->
+        let pageState, cmd = BullsAndCows.init ()
         let state =
             { state with
-                // LissajousState = lissajousState
-                CurrentPage = OtherPage }
-        state, Cmd.none
+                BullsAndCowsState = pageState
+                CurrentPage = BullsAndCowsPage }
+        state, cmd
 
 open Feliz.Router
 
 [<Literal>]
 let LissajousRoute = "lissajous"
 [<Literal>]
-let OtherRoute = "otherPage"
+let BullsAndCowsRoute = "BullsAndCows"
 
 let parseUrl state segments =
     match segments with
     | LissajousRoute::_ ->
         changePage state LissajousPage
-    | OtherRoute::_ ->
-        changePage state OtherPage
+    | BullsAndCowsRoute::_ ->
+        changePage state BullsAndCowsPage
     | _ ->
         state, Cmd.none
 
 let update (msg: Msg) (state: State) =
     match msg with
     | ChangePage page -> changePage state page
-    | LissajousCmd msg ->
+    | LissajousMsg msg ->
         let lissajousState, cmd =
             Lissajous.update msg state.LissajousState
         let state =
@@ -291,12 +296,20 @@ let update (msg: Msg) (state: State) =
         state, cmd
     | ChangeUrl segments ->
         parseUrl state segments
+    | BullsAndCowsMsg msg ->
+        let state', cmd =
+            BullsAndCows.update msg state.BullsAndCowsState
+        let state =
+            { state with
+                BullsAndCowsState = state' }
+        state, cmd
 
 let init () =
     let state =
         {
             LissajousState = Lissajous.initState
             CurrentPage = LissajousPage
+            BullsAndCowsState = fst (BullsAndCows.init ())
         }
     Router.currentUrl()
     |> parseUrl state
@@ -329,11 +342,11 @@ let navBrand (state : State) (dispatch : Msg -> unit) =
         ]
 
         Navbar.Item.a [
-            let isActive = state.CurrentPage = OtherPage
+            let isActive = state.CurrentPage = BullsAndCowsPage
             Navbar.Item.IsActive isActive
-            Navbar.Item.Props [ Href (Router.format OtherRoute) ]
+            Navbar.Item.Props [ Href (Router.format BullsAndCowsRoute) ]
         ] [
-            str "OtherPage"
+            str "BullsAndCows"
         ]
     ]
 
@@ -358,9 +371,9 @@ let view (state : State) (dispatch : Msg -> unit) =
                         ] [
                             match state.CurrentPage with
                             | LissajousPage ->
-                                Lissajous.containerBox state.LissajousState (LissajousCmd >> dispatch)
-                            | OtherPage ->
-                                str "Content of other page"
+                                Lissajous.containerBox state.LissajousState (LissajousMsg >> dispatch)
+                            | BullsAndCowsPage ->
+                                BullsAndCows.containerBox state.BullsAndCowsState (BullsAndCowsMsg >> dispatch)
                         ]
                     ]
                 ]

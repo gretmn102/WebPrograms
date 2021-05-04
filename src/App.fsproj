@@ -10,6 +10,7 @@
     <Compile Include="MapEngine.fs" />
     <Compile Include="TableCanvas.fs" />
     <Compile Include="Lissajous.fs" />
+    <Compile Include="BullsAndCows.fs" />
     <Compile Include="Index.fs" />
     <Compile Include="App.fs" />
   </ItemGroup>
