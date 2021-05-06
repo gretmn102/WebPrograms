@@ -237,12 +237,14 @@ type Page =
     | LissajousPage
     | BullsAndCowsPage
     | TowerOfHanoiPage
+    | ConvertorsPage
 
 type State =
     {
         LissajousState: Lissajous.State
         BullsAndCowsState: BullsAndCows.State
         TowerOfHanoiState: TowerOfHanoi.State
+        ConvertorsState: Convertors.State
         CurrentPage: Page
     }
 
@@ -250,6 +252,7 @@ type Msg =
     | LissajousMsg of Lissajous.Msg
     | BullsAndCowsMsg of BullsAndCows.Msg
     | TowerOfHanoiMsg of TowerOfHanoi.Msg
+    | ConvertorsMsg of Convertors.Msg
     | ChangePage of Page
     | ChangeUrl of segments:string list
 
@@ -277,6 +280,13 @@ let changePage state =
                 TowerOfHanoiState = pageState
                 CurrentPage = TowerOfHanoiPage }
         state, cmd
+    | ConvertorsPage ->
+        let pageState, cmd = Convertors.init ()
+        let state =
+            { state with
+                ConvertorsState = pageState
+                CurrentPage = ConvertorsPage }
+        state, cmd
 
 open Feliz.Router
 
@@ -286,6 +296,8 @@ let LissajousRoute = "lissajous"
 let BullsAndCowsRoute = "BullsAndCows"
 [<Literal>]
 let TowerOfHanoiRoute = "TowerOfHanoi"
+[<Literal>]
+let ConvertorsRoute = "Convertors"
 
 let parseUrl state segments =
     match segments with
@@ -295,6 +307,8 @@ let parseUrl state segments =
         changePage state BullsAndCowsPage
     | TowerOfHanoiRoute::_ ->
         changePage state TowerOfHanoiPage
+    | ConvertorsRoute::_ ->
+        changePage state ConvertorsPage
     | _ ->
         state, Cmd.none
 
@@ -324,6 +338,13 @@ let update (msg: Msg) (state: State) =
             { state with
                 TowerOfHanoiState = state' }
         state, cmd
+    | ConvertorsMsg msg ->
+        let state', cmd =
+            Convertors.update msg state.ConvertorsState
+        let state =
+            { state with
+                ConvertorsState = state' }
+        state, cmd
 
 let init () =
     let state =
@@ -332,6 +353,7 @@ let init () =
             CurrentPage = LissajousPage
             BullsAndCowsState = fst (BullsAndCows.init ())
             TowerOfHanoiState = fst (TowerOfHanoi.init ())
+            ConvertorsState = fst (Convertors.init ())
         }
     Router.currentUrl()
     |> parseUrl state
@@ -377,6 +399,13 @@ let navBrand (state : State) (dispatch : Msg -> unit) =
         ] [
             str "TowerOfHanoi"
         ]
+        Navbar.Item.a [
+            let isActive = state.CurrentPage = ConvertorsPage
+            Navbar.Item.IsActive isActive
+            Navbar.Item.Props [ Href (Router.format ConvertorsRoute) ]
+        ] [
+            str "Convertors"
+        ]
     ]
 
 let view (state : State) (dispatch : Msg -> unit) =
@@ -405,6 +434,8 @@ let view (state : State) (dispatch : Msg -> unit) =
                                 BullsAndCows.containerBox state.BullsAndCowsState (BullsAndCowsMsg >> dispatch)
                             | TowerOfHanoiPage ->
                                 TowerOfHanoi.containerBox state.TowerOfHanoiState (TowerOfHanoiMsg >> dispatch)
+                            | ConvertorsPage ->
+                                Convertors.containerBox state.ConvertorsState (ConvertorsMsg >> dispatch)
                         ]
                     ]
                 ]

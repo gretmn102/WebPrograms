@@ -12,6 +12,7 @@
     <Compile Include="Lissajous.fs" />
     <Compile Include="BullsAndCows.fs" />
     <Compile Include="TowerOfHanoi.fs" />
+    <Compile Include="Convertors.fs" />
     <Compile Include="Index.fs" />
     <Compile Include="App.fs" />
   </ItemGroup>
