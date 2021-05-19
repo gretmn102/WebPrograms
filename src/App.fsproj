@@ -15,6 +15,7 @@
     <Compile Include="Convertors.fs" />
     <Compile Include="Words.fs" />
     <Compile Include="Hangman.fs" />
+    <Compile Include="GenerateWords.fs" />
     <Compile Include="Index.fs" />
     <Compile Include="App.fs" />
   </ItemGroup>

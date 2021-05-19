@@ -239,6 +239,7 @@ type Page =
     | TowerOfHanoiPage
     | ConvertorsPage
     | HangmanPage
+    | GenerateWordsPage
 
 type State =
     {
@@ -247,6 +248,7 @@ type State =
         TowerOfHanoiState: TowerOfHanoi.State
         ConvertorsState: Convertors.State
         HangmanState: Hangman.State
+        GenerateWordsState: GenerateWords.State
         CurrentPage: Page
     }
 
@@ -256,6 +258,7 @@ type Msg =
     | TowerOfHanoiMsg of TowerOfHanoi.Msg
     | ConvertorsMsg of Convertors.Msg
     | HangmanMsg of Hangman.Msg
+    | GenerateWordsMsg of GenerateWords.Msg
     | ChangePage of Page
     | ChangeUrl of segments:string list
 
@@ -297,6 +300,14 @@ let changePage state =
                 HangmanState = pageState
                 CurrentPage = HangmanPage }
         state, cmd
+    | GenerateWordsPage ->
+        let pageState, cmd = GenerateWords.init ()
+        let state =
+            { state with
+                GenerateWordsState = pageState
+                CurrentPage = GenerateWordsPage }
+
+        state, Cmd.map GenerateWordsMsg cmd
 
 open Feliz.Router
 
@@ -310,6 +321,8 @@ let TowerOfHanoiRoute = "TowerOfHanoi"
 let ConvertorsRoute = "Convertors"
 [<Literal>]
 let HangmanRoute = "Hangman"
+[<Literal>]
+let GenerateWordsRoute = "GenerateWords"
 
 let parseUrl state segments =
     match segments with
@@ -323,11 +336,14 @@ let parseUrl state segments =
         changePage state ConvertorsPage
     | HangmanRoute::_ ->
         changePage state HangmanPage
+    | GenerateWordsRoute::_ ->
+        changePage state GenerateWordsPage
     | _ ->
         state, Cmd.none
 
 let update (msg: Msg) (state: State) =
     match msg with
+
     | ChangePage page -> changePage state page
     | LissajousMsg msg ->
         let lissajousState, cmd =
@@ -366,6 +382,13 @@ let update (msg: Msg) (state: State) =
             { state with
                 HangmanState = state' }
         state, cmd
+    | GenerateWordsMsg msg ->
+        let state', cmd =
+            GenerateWords.update msg state.GenerateWordsState
+        let state =
+            { state with
+                GenerateWordsState = state' }
+        state, Cmd.map GenerateWordsMsg cmd
 
 let init () =
     let state =
@@ -376,6 +399,7 @@ let init () =
             TowerOfHanoiState = fst (TowerOfHanoi.init ())
             ConvertorsState = fst (Convertors.init ())
             HangmanState = fst (Hangman.init ())
+            GenerateWordsState = fst (GenerateWords.init ())
         }
     Router.currentUrl()
     |> parseUrl state
@@ -435,6 +459,13 @@ let navBrand (state : State) (dispatch : Msg -> unit) =
         ] [
             str "Hangman"
         ]
+        Navbar.Item.a [
+            let isActive = state.CurrentPage = GenerateWordsPage
+            Navbar.Item.IsActive isActive
+            Navbar.Item.Props [ Href (Router.format GenerateWordsRoute) ]
+        ] [
+            str "GenerateWords"
+        ]
     ]
 
 let view (state : State) (dispatch : Msg -> unit) =
@@ -467,6 +498,8 @@ let view (state : State) (dispatch : Msg -> unit) =
                                 Convertors.containerBox state.ConvertorsState (ConvertorsMsg >> dispatch)
                             | HangmanPage ->
                                 Hangman.containerBox state.HangmanState (HangmanMsg >> dispatch)
+                            | GenerateWordsPage ->
+                                GenerateWords.containerBox state.GenerateWordsState (GenerateWordsMsg >> dispatch)
                         ]
                     ]
                 ]
