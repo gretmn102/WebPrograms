@@ -67,7 +67,7 @@ let init () =
         }
     let req =
         {
-            Url = "lemma.al"
+            Url = "russian_nouns.txt"
             Method = "GET"
             Body = null
             ContentType = Some "text/plain; charset=windows-1251"
@@ -93,7 +93,7 @@ let update (msg: Msg) (state: State) =
                 Words =
                     words
                     |> Result.map (fun words ->
-                        words.Split "\r\n"
+                        words.Split ([|"\r\n"; "\n"; "\r"|], System.StringSplitOptions.None)
                         |> Array.choose
                             (fun line ->
                                 match line.Split [|' '|] with
