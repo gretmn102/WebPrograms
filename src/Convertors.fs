@@ -71,11 +71,11 @@ let init () =
 
 let update (msg: Msg) (state: State) =
     match msg with
-    | SetInput str ->
+    | SetInput num ->
         let state =
             { state with
-                TranslatedText = RomanDigits.ofInt32 state.Input
-                Input = str
+                TranslatedText = RomanDigits.ofInt32 num
+                Input = num
             }
         state, Cmd.none
 
