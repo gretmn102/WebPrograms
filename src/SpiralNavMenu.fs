@@ -35,30 +35,54 @@ let mutable items: Item [] =
 
 let math = Fable.Core.JS.Math
 
-let initItem i (item: Browser.Types.Element) =
-    items.[i] <- {
-        X = 0.0
-        Y = 0.0
-        Alpha = (2.0 * math.PI) * float i / float count
-        Element = item
-    }
+let calcSpiral alpha t =
+    let t1 = math.cos(t)
+    let t2 = math.sin(t)
+    let t5 = basicCircleR * (t * t2 + t1)
+    let t6 = math.cos(alpha)
+    let t10 = basicCircleR * (-t * t1 + t2)
+    let t11 = math.sin(alpha)
+    t5 * t6 - t10 * t11, t10 * t6 + t11 * t5
 
-let start () =
-    let mutable t = 0.0
+let drawItem (item: Item) =
+    item.Element.setAttribute("style",
+        sprintf "position: absolute; width: %dpx; height: %dpx; left: %fpx; top: %fpx"
+            itemSize
+            itemSize
+            (centerX - itemR - item.X)
+            (centerX - itemR - item.Y)
+    )
 
-    let tMax = sqrt(float maxCircleR**2.0 - basicCircleR**2.0) / basicCircleR
+let tMax = sqrt(float maxCircleR**2.0 - basicCircleR**2.0) / basicCircleR
 
-    let calcSpiral alpha t =
-        let t1 = math.cos(t)
-        let t2 = math.sin(t)
-        let t5 = basicCircleR * (t * t2 + t1)
-        let t6 = math.cos(alpha)
-        let t10 = basicCircleR * (-t * t1 + t2)
-        let t11 = math.sin(alpha)
-        t5 * t6 - t10 * t11, t10 * t6 + t11 * t5
+let initItem isRevert i (item: Browser.Types.Element) =
+    let alpha = (2.0 * math.PI) * float i / float count
+    let x, y =
+        if isRevert then
+            calcSpiral alpha tMax
+        else
+            calcSpiral alpha 0.0
+    let item =
+        {
+            X = x
+            Y = y
+            Alpha = alpha
+            Element = item
+        }
+    items.[i] <- item
+
+    drawItem item
+
+let start isRevert revert =
+    let mutable t =
+        if isRevert then tMax else 0.0
 
     mainloop.setUpdate (fun delta ->
-        t <- (t + (delta / 150.)) // % tMax
+        t <-
+            if isRevert then
+                (t - (delta / 150.))
+            else
+                (t + (delta / 150.))
 
         items
         |> Array.iteri (fun i item ->
@@ -66,22 +90,15 @@ let start () =
             items.[i] <- { item with X = x'; Y = y' }
         )
 
-        if t > tMax then
+        if not (0.0 < t && t < tMax) then
             mainloop.stop() |> ignore
+
+            revert ()
 
     ) |> ignore
 
     mainloop.setDraw (fun interp ->
-        items
-        |> Array.iter (fun item ->
-            item.Element.setAttribute("style",
-                sprintf "position: absolute; width: %dpx; height: %dpx; left: %fpx; top: %fpx"
-                    itemSize
-                    itemSize
-                    (centerX - itemR - item.X)
-                    (centerX - itemR - item.Y)
-            )
-        )
+        items |> Array.iter drawItem
     ) |> ignore
 
     mainloop.setEnd (fun fps panic ->
@@ -93,17 +110,29 @@ let start () =
 
     mainloop.start () |> ignore
 
-type State = unit
+type State =
+    {
+        IsRevert: bool
+    }
 
-type Msg = unit
+type Msg =
+    | Revert
 
 open Elmish
 
 let update (msg: Msg) (state: State) =
-    state, Cmd.none
+    match msg with
+    | Revert ->
+        let state =
+            { state with IsRevert = not state.IsRevert }
+        state, Cmd.none
 
 let init (): State * Cmd<Msg> =
-    (), Cmd.none
+    let state = {
+        IsRevert = false
+    }
+
+    state, Cmd.none
 
 
 let containerBox (state: State) (dispatch: Msg -> unit) =
@@ -119,7 +148,10 @@ let containerBox (state: State) (dispatch: Msg -> unit) =
             for i in [0..count - 1] do
                 button [
                     Ref (fun item ->
-                        initItem i item
+                        match item with
+                        | null -> ()
+                        | item ->
+                            initItem state.IsRevert i item
                     )
                     Style [
                         Position PositionOptions.Absolute
@@ -138,12 +170,10 @@ let containerBox (state: State) (dispatch: Msg -> unit) =
                     Width basicCircleLength
                     Height basicCircleLength
 
-                    do printfn "%f" centerX
-                    do printfn "basicCircleR = %f" basicCircleR
                     Left (centerX - basicCircleR)
                     Top (centerY - basicCircleR)
                 ]
-                OnClick (fun _ -> start ())
+                OnClick (fun _ -> start state.IsRevert (fun () -> dispatch Revert))
             ] [
                 str "+"
             ]
