@@ -240,6 +240,7 @@ type Page =
     | ConvertorsPage
     | HangmanPage
     | GenerateWordsPage
+    | SpiralNavMenuPage
 
 type State =
     {
@@ -249,6 +250,7 @@ type State =
         ConvertorsState: Convertors.State
         HangmanState: Hangman.State
         GenerateWordsState: GenerateWords.State
+        SpiralNavMenuState: SpiralNavMenu.State
         CurrentPage: Page
     }
 
@@ -259,6 +261,7 @@ type Msg =
     | ConvertorsMsg of Convertors.Msg
     | HangmanMsg of Hangman.Msg
     | GenerateWordsMsg of GenerateWords.Msg
+    | SpiralNavMenuMsg of SpiralNavMenu.Msg
     | ChangePage of Page
     | ChangeUrl of segments:string list
 
@@ -308,6 +311,14 @@ let changePage state =
                 CurrentPage = GenerateWordsPage }
 
         state, Cmd.map GenerateWordsMsg cmd
+    | SpiralNavMenuPage ->
+        let pageState, cmd = SpiralNavMenu.init ()
+        let state =
+            { state with
+                SpiralNavMenuState = pageState
+                CurrentPage = SpiralNavMenuPage }
+
+        state, Cmd.map SpiralNavMenuMsg cmd
 
 open Feliz.Router
 
@@ -323,6 +334,8 @@ let ConvertorsRoute = "Convertors"
 let HangmanRoute = "Hangman"
 [<Literal>]
 let GenerateWordsRoute = "GenerateWords"
+[<Literal>]
+let SpiralNavMenuRoute = "SpiralNavMenu"
 
 let parseUrl state segments =
     match segments with
@@ -338,6 +351,8 @@ let parseUrl state segments =
         changePage state HangmanPage
     | GenerateWordsRoute::_ ->
         changePage state GenerateWordsPage
+    | SpiralNavMenuRoute::_ ->
+        changePage state SpiralNavMenuPage
     | _ ->
         state, Cmd.none
 
@@ -389,6 +404,13 @@ let update (msg: Msg) (state: State) =
             { state with
                 GenerateWordsState = state' }
         state, Cmd.map GenerateWordsMsg cmd
+    | SpiralNavMenuMsg msg ->
+        let state', cmd =
+            SpiralNavMenu.update msg state.SpiralNavMenuState
+        let state =
+            { state with
+                SpiralNavMenuState = state' }
+        state, Cmd.map GenerateWordsMsg cmd
 
 let init () =
     let state =
@@ -400,6 +422,7 @@ let init () =
             ConvertorsState = fst (Convertors.init ())
             HangmanState = fst (Hangman.init ())
             GenerateWordsState = fst (GenerateWords.init ())
+            SpiralNavMenuState = fst (SpiralNavMenu.init ())
         }
     Router.currentUrl()
     |> parseUrl state
@@ -466,6 +489,13 @@ let navBrand (state : State) (dispatch : Msg -> unit) =
         ] [
             str "GenerateWords"
         ]
+        Navbar.Item.a [
+            let isActive = state.CurrentPage = SpiralNavMenuPage
+            Navbar.Item.IsActive isActive
+            Navbar.Item.Props [ Href (Router.format SpiralNavMenuRoute) ]
+        ] [
+            str "SpiralNavMenu"
+        ]
     ]
 
 let view (state : State) (dispatch : Msg -> unit) =
@@ -500,6 +530,8 @@ let view (state : State) (dispatch : Msg -> unit) =
                                 Hangman.containerBox state.HangmanState (HangmanMsg >> dispatch)
                             | GenerateWordsPage ->
                                 GenerateWords.containerBox state.GenerateWordsState (GenerateWordsMsg >> dispatch)
+                            | SpiralNavMenuPage ->
+                                SpiralNavMenu.containerBox state.SpiralNavMenuState (SpiralNavMenuMsg >> dispatch)
                         ]
                     ]
                 ]
