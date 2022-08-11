@@ -1,4 +1,4 @@
 # Проекты
-* [Transliterate](public/Transliterate/index.html)
-* [FoxEscape](public/FoxEscape/index.html)
+* [Transliterate](https://gretmn102.github.io/Transliterator/)
+* [FoxEscape](https://gretmn102.github.io/FoxEscape/)
 * [Всякая мелочь](public/index.html)
