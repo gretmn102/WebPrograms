@@ -97,7 +97,7 @@ open Elmish
 let init () =
     let r = System.Random()
     let word =
-        // "возможность"
+        // "работа"
         Words.rusFreqNouns.[r.Next(0, Words.rusFreqNouns.Length)]
     let wordLength = word.Length
     let firstChar = word.[0]
@@ -112,8 +112,13 @@ let init () =
         Input = None
         Word =
             let xs = Array.create wordLength None
-            xs.[0] <- Some firstChar
-            xs.[wordLength - 1] <- Some lastChar
+
+            word
+            |> String.iteri (fun i c ->
+                if firstChar = c || lastChar = c then
+                    xs.[i] <- Some c
+            )
+
             xs
         UsedChars =
             Set.empty
